@@ -1,0 +1,53 @@
+// For any changes make a migration by running: npx prisma migrate dev --name
+// Migration naming convention: <incremenatl_number>_<changes_made>.<up/down>
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "debian-openssl-1.1.x", "linux-arm64-openssl-1.1.x"]
+  // output        = "../../node_modules/@prisma-db-users/client" // Since we have multiple DB and multiple schema.prisma we have to this
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:admin@postgres:5432/users"
+}
+
+model User {
+  id                       String           @id
+  external_id              String
+  first_name               String           @db.VarChar(200)
+  last_name                String           @db.VarChar(200)
+  username                 String           @db.VarChar(200)
+  image_url                String?
+  primary_email_address_id String?          @unique
+  created_at               DateTime?
+  last_sign_in_at          DateTime?
+  updated_at               DateTime?
+  email_addresses          EmailAddresses[]
+  privilege_roles          PrivilegeRole[]
+
+  @@map("users")
+}
+
+model EmailAddresses {
+  id            String @id
+  user_id       String
+  email_address String
+  user          User   @relation(fields: [user_id], references: [id])
+
+  @@map("email_addresses")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model PrivilegeRole {
+  id      Int    @id @default(autoincrement())
+  user_id String
+  role    Role
+  user    User   @relation(fields: [user_id], references: [id])
+
+  @@map("privilege_roles")
+}

@@ -1,0 +1,77 @@
+networks:
+  microservices:
+    driver: bridge
+
+services:
+  
+postgres:
+  container_name: postgresdb
+  build:
+    context: .
+    dockerfile: Dockerfile.postgres
+  ports:
+    - "5431:5432"
+  volumes:
+    - postgres_data:/var/lib/postgresql/data
+    - ./backend/auth/prisma/migrations:/docker-entrypoint-initdb.d/migrations_auth  # User migrations
+    - ./backend/products/prisma/migrations:/docker-entrypoint-initdb.d/migrations_products  # Product migrations
+    - ./backend/baskets/prisma/migrations:/docker-entrypoint-initdb.d/migrations_baskets  # Basket migrations
+    - ./init-migrations.sh:/docker-entrypoint-initdb.d/init-migrations.sh  # Mount the init script
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+        - microservices
+
+    
+  frontend-app:
+    restart: always
+    build:
+      context: ./frontend-app
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend-app:/app
+      - /app/node_modules
+    ports:
+      - 5173:5173
+
+  product-service:
+    restart: always
+    build:
+      context: ./product-service
+      target: develop
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./product-service:/app
+    depends_on:
+      - rabbitmq
+    ports:
+      - 8080:8080
+    networks:
+        - microservices
+
+  user-service:
+    restart: always
+
+    build:
+      context: ./user-service
+      target: develop
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./user-service:/app
+    depends_on:
+      - rabbitmq
+    ports:
+    - 9090:9090
+    networks:
+        - microservices
