@@ -12,7 +12,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:admin@postgres:5432/baskets"
+  url      = "postgresql://postgres:admin@postgresdb:5432/baskets"
 }
 
 model Basket {
