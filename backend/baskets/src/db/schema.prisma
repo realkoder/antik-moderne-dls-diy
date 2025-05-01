@@ -1,0 +1,41 @@
+// For any changes make a migration by running: npx prisma migrate dev --name
+// Migration naming convention: <incremenatl_number>_<changes_made>.<up/down>
+
+// If changes made to binaryTargets run from db folder: npx prisma generate
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+  //                REMEMEBER TO CHANGE TO THE EXACT db-<dbname>...
+  // output        = "../../node_modules/@prisma-db-products/client" // Since we have multiple DB and multiple schema.prisma we have to this
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:admin@postgres:5432/baskets"
+}
+
+model Basket {
+    id          Int          @id @default(autoincrement())
+    userId      String?      @map("user_id")
+    guid        String?
+    createdAt   DateTime     @default(now()) @map("created_at")
+    updatedAt   DateTime     @updatedAt @map("updated_at")
+    basketItems BasketItem[]
+
+    @@index([userId])
+    @@index([guid])
+    @@map("baskets")
+}
+
+model BasketItem {
+    id        Int      @id @default(autoincrement())
+    posterId  Int      @map("poster_id")
+    basketId  Int      @map("basket_id")
+    quantity  Int      @default(1)
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    basket    Basket   @relation(fields: [basketId], references: [id])
+
+    @@map("basket_items")
+}

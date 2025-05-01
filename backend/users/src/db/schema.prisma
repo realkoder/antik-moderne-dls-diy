@@ -1,9 +1,11 @@
 // For any changes make a migration by running: npx prisma migrate dev --name
 // Migration naming convention: <incremenatl_number>_<changes_made>.<up/down>
 
+// If changes made to binaryTargets run from db folder: npx prisma generate
+
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x", "debian-openssl-1.1.x", "linux-arm64-openssl-1.1.x"]
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
   // output        = "../../node_modules/@prisma-db-users/client" // Since we have multiple DB and multiple schema.prisma we have to this
 }
 

@@ -1,7 +1,14 @@
+import { config } from 'dotenv';
+config({ path: '.env.local' });
+
 import express from "express";
 import cors from 'cors';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-
+import { clerkMiddleware, getAuth } from '@clerk/express';
+import { Webhook } from "svix";
+import { WebhookEvent } from "@clerk/backend";
+import bodyParser from 'body-parser';
+import { connectToRabbitMQ, publishWebhookUserEvent } from './rabbitmqMessaging/config.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -12,19 +19,70 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(clerkMiddleware())
+
+// ==================
+// WEBHOOK CLERK
+// ==================
+
+const WEBHOOK_SECRET_SIGNING_KEY = process.env.WEBHOOK_SECRET_SIGNING_KEY;
+
+app.post('/api/v1/users/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
+    if (!WEBHOOK_SECRET_SIGNING_KEY) {
+        res.status(500).json({ error: 'Error: Please add SIGNING_SECRET from Clerk Dashboard to .env or .env.local' });
+        return;
+    }
+
+    const payload = req.body;
+    const { 'svix-id': webhookId, 'svix-timestamp': webhookTimestamp, 'svix-signature': webhookSignature } = req.headers;
+
+    if (!webhookId || !webhookTimestamp || !webhookSignature) {
+        res.status(400).json({ error: 'Error: Missing required headers' });
+        return;
+    }
+
+    const wh = new Webhook(WEBHOOK_SECRET_SIGNING_KEY);
+    let event: WebhookEvent;
+    try {
+        event = wh.verify(payload, {
+            'webhook-id': webhookId as string,
+            'webhook-timestamp': webhookTimestamp as string,
+            'webhook-signature': webhookSignature as string,
+        }) as WebhookEvent;
+        console.log(Date.now, "THIS IS IT", event);
+
+        await publishWebhookUserEvent(event);
+    } catch (err) {
+        console.log("ERRRIR", err);
+        res.status(400).json({});
+        return;
+    }
+
+    res.status(200).json({ message: 'Webhook received' });
+});
 
 const SERVICES = {
     AUTH: 'http://localhost:3001',
-    USERS: 'http://localhost:3002',
-    PRODUCTS: 'http://localhost:3003'
+    BASKETS: 'http://localhost:3002',
+    PRODUCTS: 'http://localhost:3004',
+    USERS: 'http://localhost:3005'
 };
 
 app.use((req, res, next) => {
     try {
-
         // Validate token through Auth Service
         if (req.path.split("/")[2] === "auth") {
-            console.log("OKAY SICK!!");
+            try {
+                const { userId } = getAuth(req);
+                if (!userId) {
+                    res.status(401).send('UserId not found');
+                    return;
+                }
+                console.log("OKAY SICK!!", userId);
+                req.body.userId = userId;
+            } catch (e) {
+                console.log(e);
+            }
         }
 
         //   if (!isValid) {
@@ -58,4 +116,5 @@ app.get("/", (req, res) => {
     res.status(200).send({ data: "OK" });
 })
 
+connectToRabbitMQ();
 app.listen(PORT, () => console.log(`Express server instantiated PORT ${PORT}`));

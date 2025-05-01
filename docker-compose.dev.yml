@@ -3,20 +3,22 @@ networks:
     driver: bridge
 
 services:
-  
-postgres:
-  container_name: postgresdb
-  build:
-    context: .
-    dockerfile: Dockerfile.postgres
-  ports:
-    - "5431:5432"
-  volumes:
-    - postgres_data:/var/lib/postgresql/data
-    - ./backend/auth/prisma/migrations:/docker-entrypoint-initdb.d/migrations_auth  # User migrations
-    - ./backend/products/prisma/migrations:/docker-entrypoint-initdb.d/migrations_products  # Product migrations
-    - ./backend/baskets/prisma/migrations:/docker-entrypoint-initdb.d/migrations_baskets  # Basket migrations
-    - ./init-migrations.sh:/docker-entrypoint-initdb.d/init-migrations.sh  # Mount the init script
+
+  postgresdb:
+    container_name: postgresdb
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    ports:
+      - "5431:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/users/src/db/migrations:/docker-entrypoint-initdb.d/migrations_users  # Users migrations
+      - ./backend/products/src/db/migrations:/docker-entrypoint-initdb.d/migrations_products  # Products migrations
+      - ./backend/baskets/src/db/migrations:/docker-entrypoint-initdb.d/migrations_baskets  # Baskets migrations
+      - ./init-migrations.sh:/docker-entrypoint-initdb.d/init-migrations.sh  # Mount the init script
+    networks:
+      - microservices
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -33,45 +35,102 @@ postgres:
     networks:
         - microservices
 
-    
-  frontend-app:
-    restart: always
-    build:
-      context: ./frontend-app
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./frontend-app:/app
-      - /app/node_modules
-    ports:
-      - 5173:5173
+  # frontend-app:
+  #   restart: always
+  #   build:
+  #     context: ./frontend-app
+  #     dockerfile: Dockerfile.dev
+  #   volumes:
+  #     - ./frontend-app:/app
+  #     - /app/node_modules
+  #   ports:
+  #     - 3000:3000
 
-  product-service:
+  auth-service:
     restart: always
     build:
-      context: ./product-service
+      context: ./backend/auth
       target: develop
       dockerfile: Dockerfile.dev
     volumes:
-      - ./product-service:/app
+      - ./backend/auth:/app
     depends_on:
+      - postgresdb
       - rabbitmq
     ports:
-      - 8080:8080
+      - 3001:3001
     networks:
         - microservices
 
-  user-service:
+  baskets-service:
     restart: always
-
     build:
-      context: ./user-service
+      context: ./backend/baskets
+      target: develop
+      dockerfile: Dockerfile.dev
+    environment:
+      - ENV=docker-compose
+    volumes:
+      - ./backend/baskets:/app
+    depends_on:
+      - postgresdb
+      - rabbitmq
+    ports:
+      - 3002:3002
+    networks:
+        - microservices
+
+  emails-service:
+    restart: always
+    build:
+      context: ./backend/emails
       target: develop
       dockerfile: Dockerfile.dev
     volumes:
-      - ./user-service:/app
+      - ./backend/emails:/app
     depends_on:
+      - postgresdb
       - rabbitmq
     ports:
-    - 9090:9090
+    - 3003:3003
     networks:
         - microservices
+
+  products-service:
+    restart: always
+    build:
+      context: ./backend/products
+      target: develop
+      dockerfile: Dockerfile.dev
+    environment:
+      - ENV=docker-compose
+    volumes:
+      - ./backend/products:/app
+    depends_on:
+      - postgresdb
+      - rabbitmq
+    ports:
+      - 3004:3004
+    networks:
+        - microservices
+
+  users-service:
+    restart: always
+    build:
+      context: ./backend/users
+      target: develop
+      dockerfile: Dockerfile.dev
+    environment:
+      - ENV=docker-compose
+    volumes:
+      - ./backend/users:/app
+    depends_on:
+      - postgresdb
+      - rabbitmq
+    ports:
+    - 3005:3005
+    networks:
+        - microservices
+
+volumes:
+  postgres_data: {}

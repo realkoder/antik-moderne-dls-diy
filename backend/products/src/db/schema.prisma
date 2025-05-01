@@ -1,0 +1,92 @@
+// For any changes make a migration by running: npx prisma migrate dev --name
+// Migration naming convention: <incremenatl_number>_<changes_made>.<up/down>
+
+// If changes made to binaryTargets run from db folder: npx prisma generate
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+  //                REMEMEBER TO CHANGE TO THE EXACT db-<dbname>...
+  // output        = "../../node_modules/@prisma-db-products/client" // Since we have multiple DB and multiple schema.prisma we have to this
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:admin@postgres:5432/products"
+}
+
+model Poster {
+  id                 Int                 @id @default(autoincrement())
+  posterDescriptions PosterDescription[]
+  removedPoster      RemovedPoster?
+
+  @@map("posters")
+}
+
+// Snapshot pattern to make posters immutable
+model PosterDescription {
+  id                      Int                      @id @default(autoincrement())
+  posterId                Int                      @map("poster_id")
+  title                   String
+  artistFullName          String                   @map("artist_full_name")
+  posterImageUrl          String                   @map("poster_image_url")
+  createdAt               DateTime                 @default(now()) @map("created_at")
+  poster                  Poster                   @relation(fields: [posterId], references: [id])
+  formatPriceDescriptions FormatPriceDescription[]
+
+  @@map("poster_descriptions")
+}
+
+// Tombstone pattern
+model RemovedPoster {
+  id        Int      @id @default(autoincrement())
+  posterId  Int      @unique @map("poster_id")
+  removedAt DateTime @default(now()) @map("removed_at")
+  poster    Poster   @relation(fields: [posterId], references: [id])
+
+  @@map("removed_posters")
+}
+
+enum Format {
+  A4
+  Size_30x30_cm
+  Size_30x40_cm
+  Size_50x50
+  Size_50x70_cm
+  Size_70x70_cm
+  Size_70x100_cm
+  Size_100x100_cm
+  Size_100x140_cm
+}
+
+model FormatPrice {
+  id                      Int                      @id @default(autoincrement())
+  removedFormatPrice      RemovedFormatPrice?
+  formatPriceDescriptions FormatPriceDescription[]
+
+  @@map("format_prices")
+}
+
+// Snapshot pattern
+model FormatPriceDescription {
+  id                  Int               @id @default(autoincrement())
+  formatPriceId       Int               @map("format_price_id")
+  price               Int
+  format              Format
+  posterDescriptionId Int               @map("poster_id")
+  createdAt           DateTime          @default(now()) @map("created_at")
+  posterDescription   PosterDescription @relation(fields: [posterDescriptionId], references: [id])
+  formatPrice         FormatPrice       @relation(fields: [formatPriceId], references: [id])
+
+  @@map("format_price_descriptions")
+}
+
+// Tombstone pattern
+model RemovedFormatPrice {
+  id            Int         @id @default(autoincrement())
+  formatPriceId Int         @unique @map("format_price_id")
+  removedAt     DateTime    @default(now()) @map("removed_at")
+  formatPrice   FormatPrice @relation(fields: [formatPriceId], references: [id])
+
+  @@map("removed_format_prices")
+}

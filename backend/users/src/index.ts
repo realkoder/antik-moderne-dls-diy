@@ -1,6 +1,6 @@
 import express from "express";
 import UserService from "./service/userService.js";
-
+import { connectToRabbitMQ } from "./rabbitmqMessaging/config.js";
 
 const app = express();
 const PORT = process.env.PORT ?? 3002;
@@ -11,7 +11,6 @@ app.get("/users/api/v1/test", (req, res) => {
     console.log("HElLO ACTUALLY CALLED");
     res.status(200).send({ data: "OK WOW FORM USER SERVICE" });
 })
-
 
 app.post("/users/auth/api/v1/role", async (req, res) => {
     try {
@@ -62,4 +61,5 @@ app.get("/users/api/v1/:id", async (req, res) => {
     }
 });
 
+connectToRabbitMQ();
 app.listen(PORT, () => console.log(`Express server instantiated PORT ${PORT}`));

@@ -6,14 +6,24 @@ export interface Response {
     success: boolean;
     message?: string;
     result?: string | number;
-  }
+}
 
-const UserService = {
-    count: async (): Promise<number> => {
+class UserService {
+    private static instance: UserService;
+    private constructor() { }
+
+    public static getInstance(): UserService {
+        if (!UserService.instance) {
+            UserService.instance = new UserService();
+        }
+        return UserService.instance;
+    }
+
+    async count(): Promise<number> {
         return await prismaUsers.user.count();
-    },
+    }
 
-    create: async (event: UserJSON): Promise<{ status: string }> => {
+    async create(event: UserJSON): Promise<{ status: string }> {
         const userNormalized = {
             id: event.id,
             external_id: event.external_id ?? "",
@@ -60,9 +70,9 @@ const UserService = {
                 status: "failed"
             };
         }
-    },
+    }
 
-    update: async (id: string, event: UserJSON): Promise<UserResponse> => {
+    async update(id: string, event: UserJSON): Promise<UserResponse> {
         try {
             const userNormalized = {
                 id: event.id,
@@ -94,9 +104,9 @@ const UserService = {
                 message: "User not found",
             };
         }
-    },
+    }
 
-    findByEmail: async (email: string): Promise<UserResponse> => {
+    async findByEmail(email: string): Promise<UserResponse> {
         const user = await prismaUsers.user.findFirst({
             where: {
                 primary_email_address_id: email
@@ -118,9 +128,9 @@ const UserService = {
                 email_addresses: [] // Fix this later if needed
             },
         };
-    },
+    }
 
-    findOne: async (userId: string): Promise<UserResponse> => {
+    async findOne(userId: string): Promise<UserResponse> {
         const user = await prismaUsers.user.findFirst({
             where: { id: userId }
         });
@@ -140,9 +150,9 @@ const UserService = {
                 email_addresses: []
             },
         };
-    },
+    }
 
-    delete: async (userId: string): Promise<Response> => {
+    async deleteUser(userId: string): Promise<Response> {
         try {
             await prismaUsers.$transaction([
                 prismaUsers.emailAddresses.deleteMany({
@@ -166,12 +176,12 @@ const UserService = {
                 message: "User not found or delete operation failed",
             };
         }
-    },
+    }
 
-    getUserRoleById: async (userId: string): Promise<Role> => {
+    async getUserRoleById(userId: string): Promise<Role> {
         const privilegeRole = await prismaUsers.privilegeRole.findFirst({ where: { user_id: userId } });
         return privilegeRole?.role as Role;
-    },
-};
+    }
+}
 
-export default UserService;
+export default UserService.getInstance();
