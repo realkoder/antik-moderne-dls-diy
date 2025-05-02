@@ -1,0 +1,24 @@
+{
+  "name": "@realkoder/antik-moderne-shared-types",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Shared types across microservices",
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

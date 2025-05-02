@@ -6,6 +6,7 @@
 .env.kubernetes
 
 node_modules
+dist
 
 .DS_Store
 

@@ -62,4 +62,4 @@ app.get("/users/api/v1/:id", async (req, res) => {
 });
 
 connectToRabbitMQ();
-app.listen(PORT, () => console.log(`Express server instantiated PORT ${PORT}`));
+app.listen(PORT, () => console.log(`user-service running at PORT ${PORT}`));

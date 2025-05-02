@@ -1,7 +1,8 @@
-import { RemovedPoster, Format as FormatEnum } from "@prisma/client";
 
-import { prismaProducts } from "../db/database";
-import { Format, PosterCreate, PosterDto, PosterUpdate } from "../types/poster.interface";
+import { RemovedPoster, Format as FormatEnum } from "@prisma/client";
+import { prismaProducts } from "../db/database.js";
+import { Format, PosterCreate, PosterDto, PosterUpdate } from "@realkoder/antik-moderne-shared-types";
+
 
 export interface Response {
     success: boolean;

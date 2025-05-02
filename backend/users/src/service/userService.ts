@@ -1,6 +1,6 @@
 import { UserJSON } from "@clerk/backend";
 import { prismaUsers } from "../db/database.js";
-import { Role, UserResponse } from "../../types/user.interface.js";
+import { Role, UserResponse } from '@realkoder/antik-moderne-shared-types';
 
 export interface Response {
     success: boolean;

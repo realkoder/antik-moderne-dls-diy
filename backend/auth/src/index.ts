@@ -1,6 +1,3 @@
-import { config } from 'dotenv';
-config({ path: '.env.local' });
-
 import express from "express";
 import cors from 'cors';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -68,26 +65,37 @@ const SERVICES = {
     USERS: 'http://localhost:3005'
 };
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
     try {
         // Validate token through Auth Service
         if (req.path.split("/")[2] === "auth") {
             try {
                 const { userId } = getAuth(req);
                 if (!userId) {
-                    res.status(401).send('UserId not found');
+                    res.status(401).send('UserId not found - Unauthorized');
                     return;
                 }
-                console.log("OKAY SICK!!", userId);
-                req.body.userId = userId;
+                const userRoleRes = await fetch(SERVICES.USERS + "/internal/users/api/v1/role", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json', // Set content type
+                    },
+                    body: JSON.stringify({ userId })
+                });
+                if (userRoleRes.ok) {
+                    const userRole = await userRoleRes.json();
+                    req.body.userId = userId;
+                    req.body.role = userRole;
+                    console.log("OKAY SICK!!", userId, userRole);
+
+                } else {
+                    res.status(401).send('UserRole not found - Unauthorized');
+                    return;
+                }
             } catch (e) {
                 console.log(e);
             }
         }
-
-        //   if (!isValid) {
-        //     return res.status(401).json({ error: 'Unauthorized' });
-        //   }
 
         // Determine target service
         let target = '';

@@ -3,4 +3,5 @@ build
 node_modules
 README.md
 .env.production
+.env.kubernetes
 .env.local

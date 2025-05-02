@@ -35,25 +35,29 @@ services:
     networks:
         - microservices
 
-  # frontend-app:
-  #   restart: always
-  #   build:
-  #     context: ./frontend-app
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - ./frontend-app:/app
-  #     - /app/node_modules
-  #   ports:
-  #     - 3000:3000
-  #   networks:
-  #       - microservices
+  frontend-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ./frontend/.env.local
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - 3000:5173
+    networks:
+        - microservices
 
   auth-service:
     restart: always
+    container_name: auth-service
     build:
       context: ./backend/auth
       target: develop
       dockerfile: Dockerfile.dev
+    env_file:
+      - ./backend/auth/.env.local
     volumes:
       - ./backend/auth:/app
     depends_on:
@@ -66,10 +70,13 @@ services:
 
   baskets-service:
     restart: always
+    container_name: baskets-service
     build:
       context: ./backend/baskets
       target: develop
       dockerfile: Dockerfile.dev
+    env_file:
+      - ./backend/baskets/.env.local
     environment:
       - ENV=docker-compose
     volumes:
@@ -84,10 +91,13 @@ services:
 
   emails-service:
     restart: always
+    container_name: emails-service
     build:
       context: ./backend/emails
       target: develop
       dockerfile: Dockerfile.dev
+    env_file:
+      - ./backend/emails/.env.local
     volumes:
       - ./backend/emails:/app
     depends_on:
@@ -100,10 +110,13 @@ services:
 
   products-service:
     restart: always
+    container_name: products-service
     build:
       context: ./backend/products
       target: develop
       dockerfile: Dockerfile.dev
+    env_file:
+      - ./backend/products/.env.local
     environment:
       - ENV=docker-compose
     volumes:
@@ -118,10 +131,13 @@ services:
 
   users-service:
     restart: always
+    container_name: users-service
     build:
       context: ./backend/users
       target: develop
       dockerfile: Dockerfile.dev
+    env_file:
+      - ./backend/users/.env.local
     environment:
       - ENV=docker-compose
     volumes:
@@ -136,3 +152,5 @@ services:
 
 volumes:
   postgres_data: {}
+  
+  

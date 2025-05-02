@@ -8,7 +8,8 @@ export default defineConfig({
     exclude: ['@chakra-ui/react'],
   },
   server: {
-    allowedHosts: ['86be-195-249-146-101.ngrok-free.app']
+    host: '0.0.0.0',
+    allowedHosts: ['86be-195-249-146-101.ngrok-free.app', 'localhost', '0.0.0.0']
   },
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
 });

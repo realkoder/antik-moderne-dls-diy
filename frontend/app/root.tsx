@@ -1,4 +1,11 @@
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import {
+  isRouteErrorResponse,
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+} from "react-router";
 
 import type { Route } from "./+types/root";
 
@@ -13,11 +20,10 @@ import { rootAuthLoader } from "@clerk/react-router/ssr.server";
 import { ClerkProvider } from "@clerk/react-router";
 
 import { Provider } from "jotai";
-
+const CLERK_SECRET_KEY = import.meta.env.VITE_CLERK_SECRET_KEY;
 export async function loader(args: Route.LoaderArgs) {
   // const secretKey = process.env.VITE_CLERK_SECRET_KEY;
-  // return rootAuthLoader(args, { secretKey });
-  return rootAuthLoader(args, {});
+  return rootAuthLoader(args, { secretKey: CLERK_SECRET_KEY });
 }
 
 export const links: Route.LinksFunction = () => [
@@ -53,9 +59,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
-    <ClerkProvider loaderData={loaderData} signUpFallbackRedirectUrl="/" signInFallbackRedirectUrl="/">
+    <ClerkProvider
+      loaderData={loaderData}
+      signUpFallbackRedirectUrl="/"
+      signInFallbackRedirectUrl="/"
+    >
       <main>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
           <Provider>
             <Outlet />
           </Provider>
@@ -72,7 +87,10 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? "404" : "Error";
-    details = error.status === 404 ? "The requested page could not be found." : error.statusText || details;
+    details =
+      error.status === 404
+        ? "The requested page could not be found."
+        : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;

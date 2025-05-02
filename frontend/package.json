@@ -21,8 +21,10 @@
     "@react-router/node": "^7.1.5",
     "@react-router/serve": "^7.1.5",
     "@vercel/react-router": "^1.1.0",
+    "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv-cli": "^8.0.0",
     "isbot": "^5.1.17",
     "jotai": "^2.12.1",
     "lucide-react": "^0.469.0",
@@ -35,8 +37,7 @@
     "spinners-react": "^1.0.10",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
-    "uuid": "^11.1.0",
-    "dotenv-cli": "^8.0.0"
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@react-router/dev": "^7.1.5",
