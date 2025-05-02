@@ -13,10 +13,10 @@ const PORT = process.env.PORT ?? 3001;
 const corsOptions = {
     // origin: ['http://localhost', 'https://antik-moderne.realkoder.com'],
     origin: ['http://localhost:3000', 'http://frontend-app:5173', 'https://antik-moderne.realkoder.com'],
+    credentials: true,
 };
 
 app.use(cors(corsOptions));
-app.use(clerkMiddleware())
 
 // ==================
 // WEBHOOK CLERK
@@ -58,6 +58,9 @@ app.post('/api/v1/users/webhook', bodyParser.raw({ type: 'application/json' }), 
     res.status(200).json({ message: 'Webhook received' });
 });
 
+app.use(express.json());
+app.use(clerkMiddleware());
+
 const SERVICES = {
     AUTH: 'http://localhost:3001',
     BASKETS: 'http://baskets-service:3002',
@@ -71,29 +74,27 @@ app.use(async (req, res, next) => {
         if (req.path.split("/")[2] === "auth") {
             try {
                 const { userId } = getAuth(req);
-                if (!userId) {
-                    res.status(401).send('UserId not found - Unauthorized');
-                    return;
-                }
+
+                console.log("THIS GONNA BE IMPORTANT CLERK PROVIDED USERID", userId);
+
                 const userRoleRes = await fetch(SERVICES.USERS + "/internal/users/api/v1/role", {
                     method: "POST",
                     headers: {
-                        'Content-Type': 'application/json', // Set content type
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ userId })
                 });
+
                 if (userRoleRes.ok) {
                     const userRole = await userRoleRes.json();
                     req.body.userId = userId;
                     req.body.role = userRole;
-                    console.log("OKAY SICK!!", userId, userRole);
-
                 } else {
-                    res.status(401).send('UserRole not found - Unauthorized');
-                    return;
+                    req.body.userId = undefined;
+                    req.body.role = "USER";
                 }
             } catch (e) {
-                console.log(e);
+                console.log("Error with AUTH CHECK", e);
             }
         }
 
@@ -102,7 +103,7 @@ app.use(async (req, res, next) => {
         if (req.path.startsWith('/baskets')) target = SERVICES.BASKETS;
         if (req.path.startsWith('/products')) target = SERVICES.PRODUCTS;
         if (req.path.startsWith('/users')) target = SERVICES.USERS;
-        console.log("TAG", target)
+        console.log("TAG", req.hostname, req.url)
 
         if (!target) {
             res.status(404).send('Not Found');

@@ -26,8 +26,7 @@ export function loader({ params }: Route.LoaderArgs) {
   return (async () => {
     const { fetchData } = useFetch<{ poster: PosterDto }>();
     const poster = await fetchData(
-      `/products/api/v1/posters/${posterId}`,
-      true
+      `/products/api/v1/posters/${posterId}`
     );
     return poster;
   })();

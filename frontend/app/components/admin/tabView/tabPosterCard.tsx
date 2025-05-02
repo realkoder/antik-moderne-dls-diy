@@ -24,7 +24,6 @@ export const TabPosterCard = ({ poster }: TabProductCardProps) => {
     // const response = await authRequestClient.product.deletePoster(poster.id);
     const response = await fetchData(
       `/products/auth/api/posters/${poster.id}`,
-      false
     );
     if (response?.posters) {
       setPosters(response?.posters);

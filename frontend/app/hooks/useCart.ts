@@ -27,7 +27,6 @@ const useCart = () => {
             if (userId) {
                 const response = await fetchData(
                     "/baskets/auth/api/v1/baskets",
-                    false,
                     { method: "POST", data: { guid: undefined } }
                 );
                 if (response) {
@@ -37,7 +36,6 @@ const useCart = () => {
                 if (localstorageGuid) {
                     const response = await fetchData(
                         "/baskets/auth/api/v1/baskets",
-                        false,
                         { method: "POST", data: { guid: localstorageGuid } }
                     );
                     if (response) {
@@ -54,7 +52,6 @@ const useCart = () => {
         // response = await authRequestClient.basket.addItemToBasket({ basketItemCreate });
         const response = await fetchData(
             "/baskets/auth/api/v1/baskets/add-item",
-            false,
             { method: "POST", data: { guid, basketItemCreate } }
         );
         // } else {
@@ -81,7 +78,6 @@ const useCart = () => {
         // }
         const response = await fetchData(
             "/baskets/auth/api/v1/baskets/remove-item",
-            false,
             { method: "DELETE", data: { guid, basketItemId: cartItemId } }
         );
 

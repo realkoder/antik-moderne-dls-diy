@@ -3,7 +3,7 @@ import UserService from "./service/userService.js";
 import { connectToRabbitMQ } from "./rabbitmqMessaging/config.js";
 
 const app = express();
-const PORT = process.env.PORT ?? 3002;
+const PORT = process.env.PORT ?? 3005;
 
 app.use(express.json());
 
@@ -16,6 +16,7 @@ app.post("/users/auth/api/v1/role", async (req, res) => {
     try {
         const userId = req.body.userId;
         const role = await UserService.getUserRoleById(userId);
+        console.log("ROLE FETCHED FOR USERID", userId, role);
         res.status(200).json({ role });
     } catch (error) {
         res.status(500).json({ error: error.message || "Internal Server Error" });

@@ -18,7 +18,7 @@ export function loader({}: Route.LoaderArgs) {
   return (async () => {
     try {
       const { fetchData } = useFetch<{ posters: PosterDto[] }>();
-      const posters = await fetchData("/products/api/v1/posters", true);
+      const posters = await fetchData("/products/api/v1/posters");
       console.log("POSTER", posters);
       if (!posters) {
         return { posters: [] };
@@ -34,10 +34,6 @@ export function loader({}: Route.LoaderArgs) {
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { posters: fetchedPosters } = loaderData;
   const [posters, setPosters] = useAtom(postersAtom);
-
-  useEffect(() => {
-    console.log("EIOGoe");
-  })
 
   useEffect(() => {
     if (posters.length > 0) return;

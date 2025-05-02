@@ -9,9 +9,15 @@ const useUserRole = () => {
     useEffect(() => {
         (async () => {
             // const userRole = await authRequestClient.user.getUserRoleForClient();
-            const userRole = await fetchData("/users/auth/api/v1/role", false, { method: "POST" });
-            if (userRole) {
-                setUserRole(userRole.role);
+            try {
+                const userRole = await fetchData("/users/auth/api/v1/role", { method: "POST" });
+                console.log("USER", userRole);
+                if (userRole) {
+                    setUserRole(userRole.role);
+                }
+            } catch (e) {
+                console.log("CAUGHT U", e);
+                setUserRole(Role.USER);
             }
         })();
     }, []);

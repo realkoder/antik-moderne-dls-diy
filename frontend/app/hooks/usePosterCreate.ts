@@ -51,7 +51,6 @@ export const usePosterCreate = (changeTabTo: (tab: string) => void) => {
             try {
                 const response = await fetchData(
                     "/products/auth/api/v1/posters",
-                    false,
                     { method: "POST", data: { posterCreate } }
                 );
                 if (response && response.posters) setPosters(response.posters);

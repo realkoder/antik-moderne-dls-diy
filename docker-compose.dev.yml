@@ -46,7 +46,7 @@ services:
       - /app/node_modules
     ports:
       - 3000:5173
-      - 8002:8002
+      # - 8002:8002
     networks:
         - microservices
 
