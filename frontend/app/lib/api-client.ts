@@ -1,34 +1,75 @@
 import axios from "axios";
-import type { AxiosRequestConfig } from "axios";
 
-export interface Response<T> {
-    count: number;
-    next: string | null;
-    results: T[];
-}
-
-const axiosInstance = axios.create({
-    // baseURL: "https://api.rawg.io/api",
-    baseURL: import.meta.env.VITE_API_URL,
-    // params: {
-    //   key: import.meta.env.VITE_API_KEY,
-    // },
+const apiCsr = axios.create({
+    baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:3001',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    withCredentials: true
 });
 
-class ApiClient<T> {
-    private endpoint: string;
 
-    constructor(endpoint: string) {
-        this.endpoint = endpoint;
-    }
+const apiSsr = axios.create({
+    baseURL: process.env.VITE_BASE_URL_SSR || 'http://auth-service:3001',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    withCredentials: true
+});
 
-    getAll = (config?: AxiosRequestConfig) =>
-        axiosInstance
-            .get<Response<T>>(this.endpoint, config)
-            .then((res) => res.data);
 
-    get = (id: number | string) =>
-        axiosInstance.get<T>(this.endpoint + "/" + id).then((res) => res.data);
+apiCsr.interceptors.request.use(
+    (config) => config,
+    (error) => Promise.reject(error)
+);
+
+apiSsr.interceptors.request.use(
+    (config) => config,
+    (error) => Promise.reject(error)
+);
+
+apiCsr.interceptors.response.use(
+    (response) => response.data,
+    (error) => Promise.reject(error.response?.data || error.message)
+);
+
+apiSsr.interceptors.response.use(
+    (response) => response.data,
+    (error) => Promise.reject(error.response?.data || error.message)
+);
+
+export function useFetch<T>() {
+    const fetchData = async (
+        url: string,
+        isSsr: boolean,
+        config?: {
+            method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+            data?: unknown;
+            params?: Record<string, unknown>;
+        }
+    ): Promise<T> => {
+        try {
+            if (isSsr) {
+                const response = await apiSsr({
+                    url,
+                    method: config?.method || 'GET',
+                    data: config?.data,
+                    params: config?.params,
+                });
+                return response as T;
+            } else {
+                const response = await apiCsr({
+                    url,
+                    method: config?.method || 'GET',
+                    data: config?.data,
+                    params: config?.params,
+                });
+                return response as T;
+            }
+        } catch (error) {
+            throw new Error(error as string);
+        }
+    };
+
+    return { fetchData };
 }
-
-export default ApiClient;

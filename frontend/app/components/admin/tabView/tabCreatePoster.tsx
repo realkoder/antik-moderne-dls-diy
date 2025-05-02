@@ -2,11 +2,11 @@ import { Input } from "~/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../ui/card";
 import { Label } from "@radix-ui/react-label";
 import { Button } from "~/components/ui/button";
-import type { types } from "~/lib/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { Divider } from "~/components/Divider";
 import { Toaster } from "sonner";
 import { usePosterCreate } from "~/hooks/usePosterCreate";
+import type { Format } from "@realkoder/antik-moderne-shared-types";
 
 interface TabCreatePosterProps {
   changeTabTo: (tab: string) => void;
@@ -62,7 +62,7 @@ export const TabCreatePoster = ({ changeTabTo }: TabCreatePosterProps) => {
         <div className="flex">
           <div>
             <Label>Format</Label>
-            <Select onValueChange={(e: types.Format) => onChangeActions.onFormatChange(e)}>
+            <Select onValueChange={(e: Format) => onChangeActions.onFormatChange(e)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select format" />
               </SelectTrigger>

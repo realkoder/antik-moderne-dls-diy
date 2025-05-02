@@ -1,9 +1,9 @@
-import type { types } from "~/lib/client";
+import type { BasketItemDto } from "@realkoder/antik-moderne-shared-types";
 import { MdRemoveCircle } from "react-icons/md";
 import useCart from "~/hooks/useCart";
 
 interface CartItemProps {
-  cartItem: types.BasketItemDto;
+  cartItem: BasketItemDto;
 }
 
 export const CartItem = ({ cartItem }: CartItemProps) => {

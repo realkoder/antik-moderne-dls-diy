@@ -1,4 +1,4 @@
-import { prismaBaskets } from "../db/database";
+import { prismaBaskets } from "../db/database.js";
 import { BasketDto, BasketItemCreate } from '@realkoder/antik-moderne-shared-types';
 
 /**

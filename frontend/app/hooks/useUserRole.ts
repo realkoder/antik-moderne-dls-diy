@@ -1,26 +1,20 @@
+import { Role } from "@realkoder/antik-moderne-shared-types";
 import { useEffect, useState } from "react";
-import type { types } from "../lib/client";
-import useAuthFetch from "./useAuthFetch";
+import { useFetch } from "~/lib/api-client";
 
 const useUserRole = () => {
-    const [userRole, setUserRole] = useState<types.Role>("USER");
-    const { authRequestClient } = useAuthFetch();
+    const [userRole, setUserRole] = useState<Role>(Role.USER);
+    const { fetchData } = useFetch<{ role: Role }>();
 
     useEffect(() => {
         (async () => {
-            if (!authRequestClient) {
-                setUserRole("USER");
-                return;
+            // const userRole = await authRequestClient.user.getUserRoleForClient();
+            const userRole = await fetchData("/users/auth/api/v1/role", false, { method: "POST" });
+            if (userRole) {
+                setUserRole(userRole.role);
             }
-
-            (async () => {
-                const userRole = await authRequestClient.user.getUserRoleForClient();
-                if (userRole) {
-                    setUserRole(userRole.role);
-                }
-            })()
         })();
-    }, [authRequestClient]);
+    }, []);
 
     return { userRole };
 }

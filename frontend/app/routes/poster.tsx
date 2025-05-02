@@ -1,12 +1,21 @@
-import getRequestClient from "~/lib/getRequestClient";
 import type { Route } from "./+types/poster";
 import { CiShoppingBasket } from "react-icons/ci";
 import useCart from "~/hooks/useCart";
 import { Button } from "~/components/ui/button";
-import { Heart, Minus, Plus, RefreshCw, Share, ShieldCheck, ShoppingCart, Truck } from "lucide-react";
+import {
+  Heart,
+  Minus,
+  Plus,
+  RefreshCw,
+  Share,
+  ShieldCheck,
+  ShoppingCart,
+  Truck,
+} from "lucide-react";
 import { useEffect, useState } from "react";
-import type { types } from "~/lib/client";
 import { toast } from "sonner";
+import { useFetch } from "~/lib/api-client";
+import type { Format, PosterDto } from "@realkoder/antik-moderne-shared-types";
 
 export function loader({ params }: Route.LoaderArgs) {
   const posterId = Number(params.posterId);
@@ -15,7 +24,11 @@ export function loader({ params }: Route.LoaderArgs) {
   }
 
   return (async () => {
-    const poster = await getRequestClient(undefined, true).product.getPoster(posterId);
+    const { fetchData } = useFetch<{ poster: PosterDto }>();
+    const poster = await fetchData(
+      `/products/api/v1/posters/${posterId}`,
+      true
+    );
     return poster;
   })();
 }
@@ -23,19 +36,31 @@ export function loader({ params }: Route.LoaderArgs) {
 export default function Poster({ loaderData }: Route.ComponentProps) {
   const { poster } = loaderData;
   const { addItemToCart } = useCart();
-  const [quantities, setQuantities] = useState<{ format: types.Format; quantity: number }[]>([]);
+  const [quantities, setQuantities] = useState<
+    { format: Format; quantity: number }[]
+  >([]);
 
   useEffect(() => {
-    setQuantities(poster.formatPrices.map((curPoster) => ({ format: curPoster.format, quantity: 0 })));
+    setQuantities(
+      poster.formatPrices.map((curPoster) => ({
+        format: curPoster.format,
+        quantity: 0,
+      }))
+    );
   }, []);
 
-  const handleUpdateQuantity = (formatToUpdate: types.Format, shouldIncrease: boolean) => {
+  const handleUpdateQuantity = (
+    formatToUpdate: Format,
+    shouldIncrease: boolean
+  ) => {
     setQuantities((cur) => {
       const updatedMap = cur.map((formatQuant) => {
         if (formatQuant.format === formatToUpdate) {
           return {
             ...formatQuant,
-            quantity: shouldIncrease ? formatQuant.quantity + 1 : Math.max(0, formatQuant.quantity - 1),
+            quantity: shouldIncrease
+              ? formatQuant.quantity + 1
+              : Math.max(0, formatQuant.quantity - 1),
           };
         }
         return formatQuant;
@@ -60,7 +85,11 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
     <div className="grid p-4 grid-cols-1 md:grid-cols-2 gap-12 mb-16">
       {/* Product Image */}
       <div className="overflow-hidden rounded-lg border bg-white">
-        <img src={poster.posterImageUrl} alt={poster.title} className="w-full h-full object-cover " />
+        <img
+          src={poster.posterImageUrl}
+          alt={poster.title}
+          className="w-full h-full object-cover "
+        />
       </div>
 
       {/* Product Info */}
@@ -77,10 +106,15 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
 
         {poster.formatPrices.map((formatPrice) => {
           return (
-            <div key={formatPrice.id} className="flex justify-center items-center">
+            <div
+              key={formatPrice.id}
+              className="flex justify-center items-center"
+            >
               <p>{formatPrice.format}</p>
               <button
-                onClick={() => addItemToCart({ posterId: poster.id, quantity: 1 })}
+                onClick={() =>
+                  addItemToCart({ posterId: poster.id, quantity: 1 })
+                }
                 className="flex items-center justify-center border border-black p-1 hover:cursor-pointer hover:scale-105 m-2 relative group h-8 w-28"
               >
                 <CiShoppingBasket className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out" />
@@ -97,17 +131,23 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
                     variant="ghost"
                     size="icon"
                     className="h-10 w-10 rounded-none"
-                    onClick={() => handleUpdateQuantity(formatPrice.format, false)}
+                    onClick={() =>
+                      handleUpdateQuantity(formatPrice.format, false)
+                    }
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
                   <div className="w-12 text-center">
-                    {quantities.find((formatQuant) => formatQuant.format === formatPrice.format)?.quantity ?? 0}
+                    {quantities.find(
+                      (formatQuant) => formatQuant.format === formatPrice.format
+                    )?.quantity ?? 0}
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => handleUpdateQuantity(formatPrice.format, true)}
+                    onClick={() =>
+                      handleUpdateQuantity(formatPrice.format, true)
+                    }
                     className="h-10 w-10 rounded-none"
                   >
                     <Plus className="h-4 w-4" />
@@ -127,7 +167,11 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
           <Button variant="outline" size="icon">
             <Heart className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={() => console.log("IMPLEMENT ME handleShare")}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => console.log("IMPLEMENT ME handleShare")}
+          >
             <Share className="h-4 w-4" />
           </Button>
         </div>
@@ -138,21 +182,27 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
             <Truck className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div>
               <h4 className="font-medium text-sm">Free Shipping</h4>
-              <p className="text-sm text-muted-foreground">Free shipping on orders over $50</p>
+              <p className="text-sm text-muted-foreground">
+                Free shipping on orders over $50
+              </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <ShieldCheck className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div>
               <h4 className="font-medium text-sm">Secure Payment</h4>
-              <p className="text-sm text-muted-foreground">100% secure payment processing</p>
+              <p className="text-sm text-muted-foreground">
+                100% secure payment processing
+              </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <RefreshCw className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div>
               <h4 className="font-medium text-sm">Easy Returns</h4>
-              <p className="text-sm text-muted-foreground">14-day easy return policy</p>
+              <p className="text-sm text-muted-foreground">
+                14-day easy return policy
+              </p>
             </div>
           </div>
         </div>

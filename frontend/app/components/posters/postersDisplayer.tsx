@@ -2,15 +2,15 @@ import { useAtomValue } from "jotai";
 import { Link, redirect } from "react-router";
 import { postersAtom } from "~/atoms/postersAtom";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
-import type { types } from "~/lib/client";
 import { useState } from "react";
+import type { FormatPriceDto } from "@realkoder/antik-moderne-shared-types";
 
 export const PosterDisplayer = () => {
   const posters = useAtomValue(postersAtom);
 
-  const [selectedFormats, setSelectedFormats] = useState<Record<string, types.FormatPriceDto>>({});
+  const [selectedFormats, setSelectedFormats] = useState<Record<string, FormatPriceDto>>({});
 
-  const getCurrentFormatPrice = (posterId: number, formatPrices: types.FormatPriceDto[]): types.FormatPriceDto => {
+  const getCurrentFormatPrice = (posterId: number, formatPrices: FormatPriceDto[]): FormatPriceDto => {
     return selectedFormats[posterId] || formatPrices[0];
   };
 
@@ -57,7 +57,7 @@ export const PosterDisplayer = () => {
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Formats:</SelectLabel>
-                        {poster.formatPrices.map((formatPrice: types.FormatPriceDto) => (
+                        {poster.formatPrices.map((formatPrice: FormatPriceDto) => (
                           <SelectItem key={formatPrice.format} value={formatPrice.format}>
                             {formatPrice.format}
                           </SelectItem>

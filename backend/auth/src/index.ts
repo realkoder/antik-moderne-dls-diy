@@ -12,7 +12,7 @@ const PORT = process.env.PORT ?? 3001;
 
 const corsOptions = {
     // origin: ['http://localhost', 'https://antik-moderne.realkoder.com'],
-    origin: ['https://antik-moderne.realkoder.com'],
+    origin: ['http://localhost:3000', 'http://frontend-app:5173', 'https://antik-moderne.realkoder.com'],
 };
 
 app.use(cors(corsOptions));
@@ -60,9 +60,9 @@ app.post('/api/v1/users/webhook', bodyParser.raw({ type: 'application/json' }), 
 
 const SERVICES = {
     AUTH: 'http://localhost:3001',
-    BASKETS: 'http://localhost:3002',
-    PRODUCTS: 'http://localhost:3004',
-    USERS: 'http://localhost:3005'
+    BASKETS: 'http://baskets-service:3002',
+    PRODUCTS: 'http://products-service:3004',
+    USERS: 'http://users-service:3005'
 };
 
 app.use(async (req, res, next) => {
@@ -99,8 +99,10 @@ app.use(async (req, res, next) => {
 
         // Determine target service
         let target = '';
-        if (req.path.startsWith('/users')) target = SERVICES.USERS;
+        if (req.path.startsWith('/baskets')) target = SERVICES.BASKETS;
         if (req.path.startsWith('/products')) target = SERVICES.PRODUCTS;
+        if (req.path.startsWith('/users')) target = SERVICES.USERS;
+        console.log("TAG", target)
 
         if (!target) {
             res.status(404).send('Not Found');

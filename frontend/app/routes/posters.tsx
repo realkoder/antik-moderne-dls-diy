@@ -1,10 +1,10 @@
 import { useAtom } from "jotai";
 import type { Route } from "./+types/posters";
-import getRequestClient from "~/lib/getRequestClient";
 import { postersAtom } from "~/atoms/postersAtom";
 import { useEffect } from "react";
 import { PosterDisplayer } from "~/components/posters/postersDisplayer";
-import type { types } from "~/lib/client";
+import { useFetch } from "~/lib/api-client";
+import type { PosterDto } from "@realkoder/antik-moderne-shared-types";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Posters - Antik Moderne" }, { name: "description", content: "Posters" }];
@@ -13,11 +13,12 @@ export function meta({}: Route.MetaArgs) {
 export function loader({}: Route.LoaderArgs) {
   return (async () => {
     try {
-      const posters = await getRequestClient(undefined, true).product.getPosters();
+      const { fetchData } = useFetch<{ posters: PosterDto[] }>();
+      const posters = await fetchData("/products/api/v1/posters", true);
       return posters;
     } catch (e) {
       console.error("Error fethcing posters", e);
-      return { posters: [] as types.PosterDto[] };
+      return { posters: [] as PosterDto[] };
     }
   })();
 }

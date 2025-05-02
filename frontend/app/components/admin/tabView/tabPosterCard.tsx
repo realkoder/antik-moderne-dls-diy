@@ -1,23 +1,31 @@
-import { type types } from "~/lib/client";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../../ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../../ui/card";
 import { Divider } from "~/components/Divider";
 import { IoTrashOutline } from "react-icons/io5";
 import { useSetAtom } from "jotai";
 import { postersAtom } from "~/atoms/postersAtom";
-import useAuthFetch from "~/hooks/useAuthFetch";
+import type { PosterDto } from "@realkoder/antik-moderne-shared-types";
+import { useFetch } from "~/lib/api-client";
 
 interface TabProductCardProps {
-  poster: types.PosterDto;
+  poster: PosterDto;
 }
 
 export const TabPosterCard = ({ poster }: TabProductCardProps) => {
   const setPosters = useSetAtom(postersAtom);
-  const { authRequestClient } = useAuthFetch();
+  const { fetchData } = useFetch<{ posters: PosterDto[] }>();
 
   const handleDeletePoster = async () => {
-    if (!authRequestClient) return;
-
-    const response = await authRequestClient.product.deletePoster(poster.id);
+    // const response = await authRequestClient.product.deletePoster(poster.id);
+    const response = await fetchData(
+      `/products/auth/api/posters/${poster.id}`,
+      false
+    );
     if (response?.posters) {
       setPosters(response?.posters);
     }
@@ -28,11 +36,16 @@ export const TabPosterCard = ({ poster }: TabProductCardProps) => {
       <CardHeader className="text-center flex-col justify-center items-center">
         <div className="flex gap-x-1">
           <CardTitle>{poster.title}</CardTitle>
-          <IoTrashOutline onClick={() => handleDeletePoster()} className="cursor-pointer text-red-500" />
+          <IoTrashOutline
+            onClick={() => handleDeletePoster()}
+            className="cursor-pointer text-red-500"
+          />
         </div>
         <div className="flex text-sm font-serif">
           <p>Created:</p>
-          <p className="ml-1 italic">{`${new Date().toISOString().split("T")[0]}`}</p>
+          <p className="ml-1 italic">{`${
+            new Date().toISOString().split("T")[0]
+          }`}</p>
         </div>
       </CardHeader>
 

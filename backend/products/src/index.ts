@@ -81,7 +81,7 @@ app.put('/products/auth/api/v1/posters/:posterId', async (req, res) => {
 });
 
 // Only admin can call this
-app.delete('/api/posters/:posterId', async (req, res) => {
+app.delete('/products/auth/api/posters/:posterId', async (req, res) => {
     const { posterId } = req.params;
     const { role } = req.body;
 

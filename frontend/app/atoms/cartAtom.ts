@@ -1,4 +1,4 @@
+import type { BasketDto } from "@realkoder/antik-moderne-shared-types";
 import {atom} from "jotai";
-import type { types } from "~/lib/client";
 
-export const cartAtom = atom<types.BasketDto>();
+export const cartAtom = atom<BasketDto>();

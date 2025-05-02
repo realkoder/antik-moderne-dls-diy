@@ -1,5 +1,5 @@
 import express from "express";
-import BasketsService from "./service/BasketsService";
+import BasketsService from "./service/BasketsService.js";
 
 const app = express();
 const PORT = process.env.PORT ?? 3002;

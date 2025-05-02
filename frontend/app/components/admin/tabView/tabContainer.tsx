@@ -35,7 +35,7 @@ export const TabContainer = () => {
               (poster) =>
                 poster.artistFullName.toLowerCase().includes(searchString) ||
                 poster.title.toLowerCase().includes(searchString) ||
-                poster.createdAt.includes(searchString)
+                poster.createdAt.toISOString().includes(searchString)
             )
             .map((poster) => (
               <TabPosterCard key={poster.title} poster={poster} />
