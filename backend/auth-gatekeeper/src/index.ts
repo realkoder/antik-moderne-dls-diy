@@ -62,7 +62,7 @@ app.use(express.json());
 app.use(clerkMiddleware());
 
 const SERVICES = {
-    AUTH: 'http://localhost:3001',
+    // AUTH: 'http://localhost:3001',
     BASKETS: 'http://baskets-service:3002',
     PRODUCTS: 'http://products-service:3004',
     USERS: 'http://users-service:3005'

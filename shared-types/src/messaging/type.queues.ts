@@ -1,0 +1,1 @@
+export type MessagingQueues = "user_added" | "user_clerk_webhook";

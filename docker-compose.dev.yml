@@ -1,3 +1,11 @@
+# ===========================================================
+#       🐳 🐳 🐳 🐳 🐳 DOCKER COMPOSE 🐳 🐳 🐳 🐳 🐳
+# ===========================================================
+# docker-compose up: docker-compose -f docker-compose.dev.yml up
+# docker-compose logs: docker-compose -f docker-compose.dev.yml logs -f
+# docker-compose down: docker-compose -f docker-compose.dev.yml down --rmi all --remove-orphans // Deletes all images - JUST MAKE SURE VOLUMES WONT BE DELETED
+
+
 networks:
   microservices:
     driver: bridge
@@ -50,17 +58,17 @@ services:
     networks:
         - microservices
 
-  auth-service:
+  auth-gatekeeper-service:
     restart: always
-    container_name: auth-service
+    container_name: auth-gatekeeper-service
     build:
-      context: ./backend/auth
+      context: ./backend/auth-gatekeeper
       target: develop
       dockerfile: Dockerfile.dev
     env_file:
-      - ./backend/auth/.env.local
+      - ./backend/auth-gatekeeper/.env.local
     volumes:
-      - ./backend/auth:/app
+      - ./backend/auth-gatekeeper:/app
     depends_on:
       - postgresdb
       - rabbitmq

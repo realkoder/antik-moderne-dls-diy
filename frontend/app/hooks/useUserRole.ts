@@ -16,7 +16,6 @@ const useUserRole = () => {
                     setUserRole(userRole.role);
                 }
             } catch (e) {
-                console.log("CAUGHT U", e);
                 setUserRole(Role.USER);
             }
         })();

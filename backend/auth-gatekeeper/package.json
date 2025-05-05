@@ -1,5 +1,5 @@
 {
-  "name": "auth",
+  "name": "auth-gatekeeper",
   "version": "1.0.0",
   "main": "src/index.ts",
   "type": "module",
