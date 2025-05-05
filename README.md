@@ -442,6 +442,25 @@ encore build docker --base=node:20-bullseye --config infra-config.json --arch=ar
 
 <br>
 
+## Adding Openapi/Swagger docs
+
+```bash
+npm install swagger-jsdoc swagger-ui-express
+
+# Since we use TS we need types
+npm i --save-dev @types/swagger-jsdoc
+npm i --save-dev @types/swagger-ui-express 
+```
+
+
+<br>
+
+---
+
+<br>
+
+
+
 ## Bonus links and miscellaneous
 
 _PostgreSQL_ is used as databasse - where _[Drizzle](https://orm.drizzle.team)_ is used as _ORM_.

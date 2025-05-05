@@ -1,66 +1,44 @@
 import express from "express";
-import UserService from "./service/userService.js";
 import { connectToRabbitMQ } from "./rabbitmqMessaging/config.js";
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+import usersRouters from './routers/usersRouter.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3005;
 
 app.use(express.json());
 
-app.get("/users/api/v1/test", (req, res) => {
-    console.log("HElLO ACTUALLY CALLED");
-    res.status(200).send({ data: "OK WOW FORM USER SERVICE" });
-})
+// =========================
+// USERS API
+// =========================
+app.use(usersRouters)
 
-app.post("/users/auth/api/v1/role", async (req, res) => {
-    try {
-        const userId = req.body.userId;
-        const role = await UserService.getUserRoleById(userId);
-        console.log("ROLE FETCHED FOR USERID", userId, role);
-        res.status(200).json({ role });
-    } catch (error) {
-        res.status(500).json({ error: error.message || "Internal Server Error" });
-    }
-});
+// =========================
+// SWAGGER / OPENAPI CONFIG
+// =========================
+if (process.env.ENV === "docker-compose") {
+    const swaggerDefinition = {
+        openapi: '3.1.0',
+        info: {
+            title: 'Users API',
+            version: '0.0.1'
+        },
+        apis: ['./src/routers/*Router.ts']
+    };
 
-app.post("/internal/users/api/v1/role", async (req, res) => {
-    const { userId } = req.body;
-    try {
-        const role = await UserService.getUserRoleById(userId);
-        res.status(200).json({ role });
-    } catch (error) {
-        res.status(500).json({ error: error.message || "Internal Server Error" });
-    }
-});
+    const swaggerOptions = {
+        swaggerDefinition,
+        apis: ['./src/routers/*Router.ts']
+    };
 
-app.get("/api/count/users", async (req, res) => {
-    try {
-        const response = await UserService.count();
-        res.status(200).json({ data: response });
-    } catch (error) {
-        res.status(500).json({ error: error.message || "Internal Server Error" });
-    }
-});
+    app.use('/users/docs', swaggerUi.serve, swaggerUi.setup(swaggerJsdoc(swaggerOptions)));
+}
 
-app.get("/users/api/v1/email/:email", async (req, res) => {
-    const { email } = req.params;
-    try {
-        const user = await UserService.findByEmail(email);
-        res.status(200).json({ data: user });
-    } catch (error) {
-        res.status(500).json({ error: error.message || "Internal Server Error" });
-    }
-});
-
-app.get("/users/api/v1/:id", async (req, res) => {
-    const { id } = req.params; // Extract the ID from the request parameters
-    try {
-        const user = await UserService.findOne(id);
-        res.status(200).json({ data: user });
-    } catch (error) {
-        res.status(500).json({ error: error.message || "Internal Server Error" });
-    }
-});
+// Middleware to handle unmatched routes
+// app.use((req, res) => {
+//     res.redirect(302, 'https://www.disney.com');
+// });
 
 connectToRabbitMQ();
 app.listen(PORT, () => console.log(`user-service running at PORT ${PORT}`));

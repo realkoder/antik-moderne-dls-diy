@@ -1,5 +1,5 @@
 import amqp, { Channel, ChannelModel } from "amqplib";
-import UserService from "../service/userService.js";
+import UserService from "../service/UsersService.js";
 
 const userWebhookQueue = "user_clerk_webhook";
 const userAddedQueue = "user_added";
