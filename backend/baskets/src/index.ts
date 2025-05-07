@@ -16,7 +16,7 @@ app.use(basketsRouter);
 // =========================
 // SWAGGER / OPENAPI CONFIG
 // =========================
-if (process.env.ENV === "docker-compose") {
+if (process.env.ENV === "docker-compose" || process.env.ENV === "kubernetes-local") {
     const swaggerDefinition = {
         openapi: '3.1.0',
         info: {
