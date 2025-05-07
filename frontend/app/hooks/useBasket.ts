@@ -13,10 +13,6 @@ const useBasket = () => {
     const [basket, setBasket] = useAtom(basketAtom);
 
     useEffect(() => {
-        console.log("LOOK", basket);
-    }, [basket]);
-
-    useEffect(() => {
         let localstorageGuid = localStorage.getItem("basketguid")
         if (!localstorageGuid) {
             const generatedGuid = uuidv4();
@@ -55,7 +51,6 @@ const useBasket = () => {
             "/baskets/auth/api/v1/baskets/add-item",
             { method: "PUT", data: { guid, basketItemCreate } }
         );
-        console.log("HEEYY", response.basket);
 
         if (response && response.basket) {
             setBasket(response.basket);

@@ -45,7 +45,6 @@ router.get("/users/auth/api/v1/role", async (req, res) => {
         }
 
         const role = await UsersService.getUserRoleById(userId);
-        console.log("ROLE FETCHED FOR USERID", userId, role);
         res.status(200).json({ role });
     } catch (error) {
         res.status(500).json({ error: error.message || "Internal Server Error" });

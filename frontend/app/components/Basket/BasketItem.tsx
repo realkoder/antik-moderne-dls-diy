@@ -8,7 +8,6 @@ interface BasketItemProps {
 
 export const BasketItem = ({ basketItem }: BasketItemProps) => {
   const { removeItemFromBasket } = useBasket();
-  console.log("NOW", basketItem);
 
   return (
     <div className="relative flex items-center justify-start w-full mt-2">
