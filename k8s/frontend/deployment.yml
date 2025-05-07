@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-app
+  labels:
+    app: frontend-app
+spec:
+  replicas: 1  # Number of replicas
+  selector:
+    matchLabels:
+      app: frontend-app
+  template:
+    metadata:
+      labels:
+        app: frontend-app
+    spec:
+      containers:
+      - name: frontend-app
+        # image: ghcr.io/realkoder/antik-moderne-frontend-app:latest
+        image: antik-moderne-frontend-app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        # env:
+        # - name: VITE_ENV
+        #   valueFrom:
+        #     configMapKeyRef:
+        #       name: frontend-env
+        #       key: VITE_ENV
+        # - name: VITE_CLERK_PUBLISHABLE_KEY
+        #   valueFrom:
+        #     configMapKeyRef:
+        #       name: frontend-env
+        #       key: VITE_CLERK_PUBLISHABLE_KEY
+        # - name: VITE_CLERK_SECRET_KEY
+        #   valueFrom:
+        #     configMapKeyRef:
+        #       name: frontend-env
+        #       key: VITE_CLERK_SECRET_KEY
+        # - name: VITE_CLERK_SIGN_IN_FALLBACK_URL
+        #   valueFrom:
+        #     configMapKeyRef:
+        #       name: frontend-env
+        #       key: CLERK_SIGN_IN_FALLBACK_URL
+        # - name: CLERK_SIGN_IN_URL
+        #   valueFrom:
+        #     configMapKeyRef:
+        #       name: frontend-env
+        #       key: CLERK_SIGN_IN_URL
+        # - name: VITE_BASE_URL
+        #   valueFrom:
+        #     configMapKeyRef:
+        #       name: frontend-env
+        #       key: VITE_BASE_URL
+        # - name: VITE_BASE_URL_SSR
+        #   valueFrom:
+        #     configMapKeyRef:
+        #       name: frontend-env
+        #       key: VITE_BASE_URL_SSR

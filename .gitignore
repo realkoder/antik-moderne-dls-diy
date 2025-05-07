@@ -5,6 +5,8 @@
 .env.production
 .env.kubernetes
 
+configMap.yml
+
 node_modules
 dist
 

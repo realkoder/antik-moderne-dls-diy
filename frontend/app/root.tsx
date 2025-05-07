@@ -21,9 +21,10 @@ import { ClerkProvider } from "@clerk/react-router";
 
 import { Provider } from "jotai";
 const CLERK_SECRET_KEY = import.meta.env.VITE_CLERK_SECRET_KEY;
+const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
 export async function loader(args: Route.LoaderArgs) {
-  // const secretKey = process.env.VITE_CLERK_SECRET_KEY;
-  return rootAuthLoader(args, { secretKey: CLERK_SECRET_KEY });
+  return rootAuthLoader(args, { secretKey: CLERK_SECRET_KEY, publishableKey: CLERK_PUBLISHABLE_KEY });
 }
 
 export const links: Route.LinksFunction = () => [
