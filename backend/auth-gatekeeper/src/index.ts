@@ -1,6 +1,6 @@
 import express from "express";
 import cors from 'cors';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { clerkMiddleware, getAuth } from '@clerk/express';
 import { Webhook } from "svix";
 import { WebhookEvent } from "@clerk/backend";
@@ -11,8 +11,9 @@ const app = express();
 const PORT = process.env.PORT ?? 3001;
 
 const corsOptions = {
-    // origin: ['http://localhost', 'https://antik-moderne.realkoder.com'],
-    origin: ['http://localhost:3000', 'http://frontend-app:5173', 'https://antik-moderne.realkoder.com'],
+    origin: ['http://localhost:3000', 'http://frontend-app:5173'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 };
 
@@ -70,51 +71,44 @@ const SERVICES = {
 
 app.use(async (req, res, next) => {
     try {
-        // Validate token through Auth Service
-        if (req.path.split("/")[2] === "auth") {
-            try {
-                const { userId } = getAuth(req);
-
-                console.log("THIS GONNA BE IMPORTANT CLERK PROVIDED USERID", userId);
-
-                const userRoleRes = await fetch(SERVICES.USERS + "/internal/users/api/v1/role", {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ userId })
-                });
-
-                if (userRoleRes.ok) {
-                    const userRole = await userRoleRes.json();
-                    req.body.userId = userId;
-                    req.body.role = userRole;
-                } else {
-                    req.body.userId = undefined;
-                    req.body.role = "USER";
-                }
-            } catch (e) {
-                console.log("Error with AUTH CHECK", e);
-            }
-        }
+        console.log("Request Method:", req.method);
+        console.log("Request Path:", req.path);
+        // console.log("Request Body:", req.body);
 
         // Determine target service
         let target = '';
         if (req.path.startsWith('/baskets')) target = SERVICES.BASKETS;
         if (req.path.startsWith('/products')) target = SERVICES.PRODUCTS;
         if (req.path.startsWith('/users')) target = SERVICES.USERS;
-        console.log("TAG", req.hostname, req.url)
 
         if (!target) {
             res.status(404).send('Not Found');
             return;
         }
 
+        // Authorization logic
+        let userId: string, userRole: string;
+        if (req.path.split("/")[2] === "auth") {
+            const authResult = await authorize(req); // Await the authorization
+            userId = authResult.userId;
+            userRole = authResult.userRole;
+        }
+
         // Forward to target service
         createProxyMiddleware({
-            target,
-            changeOrigin: true,
-            pathRewrite: { [`^/${target.split('/').pop()}`]: '' }
+            target: target,
+            on: {
+                // proxyReq: fixRequestBody,
+                proxyReq: async (proxyReq, incomingReq, res) => {
+                    if (userId) {
+                        proxyReq.setHeader('x-user-id', userId);
+                    }
+                    if (userRole) {
+                        proxyReq.setHeader('x-user-role', userRole);
+                    }
+                    fixRequestBody(proxyReq, req);
+                },
+            },
         })(req, res, next);
 
     } catch (error) {
@@ -122,7 +116,33 @@ app.use(async (req, res, next) => {
     }
 });
 
+async function authorize(req) {
+    try {
+        const { userId } = getAuth(req);
 
+        if (userId) {
+            const userRoleRes = await fetch(SERVICES.USERS + "/internal/users/api/v1/role", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId })
+            });
+
+            if (userRoleRes.ok) {
+                const userRole = await userRoleRes.json();
+                return { userId, userRole: userRole.role };
+            }
+        }
+    } catch (e) {
+        console.log("Error with AUTH CHECK", e);
+    }
+    return { userId: undefined, userRole: 'USER' };
+}
+
+
+// THis is just for testing that server is up and accessible
 app.get("/", (req, res) => {
     res.status(200).send({ data: "OK" });
 })

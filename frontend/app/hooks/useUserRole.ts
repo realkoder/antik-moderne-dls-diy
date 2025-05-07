@@ -10,8 +10,7 @@ const useUserRole = () => {
         (async () => {
             // const userRole = await authRequestClient.user.getUserRoleForClient();
             try {
-                const userRole = await fetchData("/users/auth/api/v1/role", { method: "POST" });
-                console.log("USER", userRole);
+                const userRole = await fetchData("/users/auth/api/v1/role");
                 if (userRole) {
                     setUserRole(userRole.role);
                 }

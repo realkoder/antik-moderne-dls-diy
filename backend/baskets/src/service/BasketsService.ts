@@ -90,6 +90,10 @@ class BasketsService {
     * // This retrieves the basket for a guest user.
     */
     async findBasket(identifier: { userId?: string; guid?: string }): Promise<BasketDto> {
+        if (identifier.userId) {
+            identifier.guid = undefined;
+        }
+
         const basket = await prismaBaskets.basket.findFirst({
             where: {
                 OR: [
@@ -108,13 +112,12 @@ class BasketsService {
             const basketItemsWithPosters = await Promise.all(basket.basketItems.map(async (item) => {
                 // TODO: Implement RABBITMQ MESSAGING INSTEAD OF SIMPLE FETCH - MAKE MORE ERRORPRONE
                 // const poster = await PosterService.findOne(item.posterId);
-                const posterRes = await fetch(`http://products-service/products/api/v1/posters/${item.posterId}`);
-                
+                const posterRes = await fetch(`http://products-service:3004/products/api/v1/posters/${item.posterId}`);
+
                 if (!posterRes.ok) {
                     throw new Error(`Poster with ID ${item.posterId} not found`);
                 }
-                const poster = await posterRes.json();
-                console.log("LLOOKK HERE THIS IS IMPORTANT", poster);
+                const { poster } = await posterRes.json();
                 return {
                     ...item,
                     poster,

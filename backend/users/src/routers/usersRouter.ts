@@ -35,9 +35,15 @@ router.get("/users/api/v1/test", (req, res) => {
  *       500:
  *         description: No role was found for the user
  */
-router.post("/users/auth/api/v1/role", async (req, res) => {
+router.get("/users/auth/api/v1/role", async (req, res) => {
     try {
-        const userId = req.body.userId;
+        const userId = req.headers['x-user-id'];
+
+        if (!userId || typeof userId !== 'string') {
+            res.status(401).json({ data: "Missing userid - unauthorized" });
+            return;
+        }
+
         const role = await UsersService.getUserRoleById(userId);
         console.log("ROLE FETCHED FOR USERID", userId, role);
         res.status(200).json({ role });

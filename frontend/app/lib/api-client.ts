@@ -1,10 +1,9 @@
 import axios from "axios";
 
 const isServer = typeof window === 'undefined';
-console.log("IS SERVER", isServer);
 
 const BASE_URL = isServer
-    ? process.env.VITE_BASE_URL_SSR || 'http://auth-service:3001'
+    ? process.env.VITE_BASE_URL_SSR || 'http://auth-gatekeeper-service:3001'
     : import.meta.env.VITE_BASE_URL || 'http://localhost:3001';
 
 const api = axios.create({
@@ -35,7 +34,6 @@ export function useFetch<T>() {
         }
     ): Promise<T> => {
         try {
-            console.log("FETCHING THIS NOW", api.getUri());
             const response = await api({
                 url,
                 method: config?.method || 'GET',

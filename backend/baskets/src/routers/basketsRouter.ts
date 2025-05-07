@@ -9,12 +9,12 @@ const router = Router();
  *   get:
  *     description: Get the basket for a user
  *     parameters:
- *       - name: guid
- *         in: query
+ *       - in: query
+ *         name: guid
  *         required: false
- *         description: The GUID of the basket for users not signed in, which is optional.
  *         schema:
  *           type: string
+ *         description: The GUID of the basket for users not signed in, which is optional.
  *     responses:
  *       200:
  *         description: Returns the basket data
@@ -33,17 +33,16 @@ const router = Router();
  *         description: Internal Server Error
  */
 router.get('/baskets/auth/api/v1/baskets', async (req, res) => {
-    const { guid } = req.query as { guid?: string }; // Get guid from query parameters
-    const { userId } = req.body.userId;
+    const userId = req.headers['x-user-id'];
+    const { guid } = req.query;
 
-    console.log("HERE IS GUID AND USERID", guid, userId);
     if (!userId && !guid) {
         res.status(400).json({ message: "Either userId or guid must be provided" });
         return;
     }
 
     try {
-        const basket = await BasketsService.findBasket({ userId, guid });
+        const basket = await BasketsService.findBasket({ userId: typeof userId === 'string' ? userId : undefined, guid: typeof guid === 'string' ? guid : '' });
 
         if (!basket) {
             res.status(404).json({ message: "Basket not found" });
@@ -89,7 +88,8 @@ router.get('/baskets/auth/api/v1/baskets', async (req, res) => {
  *         description: Internal Server Error
  */
 router.post('/baskets/auth/api/v1/baskets', async (req, res) => {
-    const { guid, userId } = req.body; // Get guid from the request body
+    const userId = req.headers['x-user-id'];
+    const { guid } = req.body; // Get guid from the request body
 
     if (!userId && !guid) {
         res.status(400).json({ message: "Either userId or guid must be provided" });
@@ -97,7 +97,7 @@ router.post('/baskets/auth/api/v1/baskets', async (req, res) => {
     }
 
     try {
-        const basket = await BasketsService.createBasket({ userId, guid });
+        const basket = await BasketsService.createBasket({ userId: typeof userId === 'string' ? userId : undefined, guid });
 
         res.status(201).json({ basket }); // Respond with the created basket
     } catch (error) {
@@ -143,7 +143,8 @@ router.post('/baskets/auth/api/v1/baskets', async (req, res) => {
  *         description: Internal Server Error
  */
 router.put('/baskets/auth/api/v1/baskets/add-item', async (req, res) => {
-    const { guid, basketItemCreate, userId } = req.body; // Get guid and basketItemCreate from the request body
+    const userId = req.headers['x-user-id'];
+    const { guid, basketItemCreate } = req.body;
 
     if (!userId && !guid) {
         res.status(400).json({ message: "Either userId or guid must be provided" });
@@ -151,7 +152,7 @@ router.put('/baskets/auth/api/v1/baskets/add-item', async (req, res) => {
     }
 
     try {
-        const basket = await BasketsService.addItemToBasket({ userId, guid }, basketItemCreate);
+        const basket = await BasketsService.addItemToBasket({ userId: typeof userId === 'string' ? userId : undefined, guid }, basketItemCreate);
 
         res.json({ basket });
     } catch (error) {
@@ -196,8 +197,8 @@ router.put('/baskets/auth/api/v1/baskets/add-item', async (req, res) => {
  *         description: Internal Server Error
  */
 router.delete('/baskets/auth/api/v1/baskets/remove-item', async (req, res) => {
-    const { guid, basketItemId } = req.body; // Get guid and basketItemId from the request body
-    const { userId } = req.body.userId;
+    const userId = req.headers['x-user-id'];
+    const { guid, basketItemId } = req.body;
 
     if (!userId && !guid) {
         res.status(400).json({ message: "Either userId or guid must be provided" });
@@ -205,7 +206,7 @@ router.delete('/baskets/auth/api/v1/baskets/remove-item', async (req, res) => {
     }
 
     try {
-        const basket = await BasketsService.removeItemFromBasket({ userId, guid }, basketItemId);
+        const basket = await BasketsService.removeItemFromBasket({ userId: typeof userId === 'string' ? userId : undefined, guid }, basketItemId);
 
         if (!basket) {
             res.status(404).json({ message: "Basket not found" });

@@ -11,6 +11,7 @@ import { useSetAtom } from "jotai";
 import { postersAtom } from "~/atoms/postersAtom";
 import type { PosterDto } from "@realkoder/antik-moderne-shared-types";
 import { useFetch } from "~/lib/api-client";
+import { toast } from "sonner";
 
 interface TabProductCardProps {
   poster: PosterDto;
@@ -23,9 +24,10 @@ export const TabPosterCard = ({ poster }: TabProductCardProps) => {
   const handleDeletePoster = async () => {
     // const response = await authRequestClient.product.deletePoster(poster.id);
     const response = await fetchData(
-      `/products/auth/api/posters/${poster.id}`,
+      `/products/auth/api/posters/${poster.id}`, {method: "DELETE"}
     );
     if (response?.posters) {
+      toast.info("Poster deleted");
       setPosters(response?.posters);
     }
   };

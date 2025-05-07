@@ -19,7 +19,6 @@ export function loader({}: Route.LoaderArgs) {
     try {
       const { fetchData } = useFetch<{ posters: PosterDto[] }>();
       const posters = await fetchData("/products/api/v1/posters");
-      console.log("POSTER", posters);
       if (!posters) {
         return { posters: [] };
       }

@@ -7,17 +7,17 @@ import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover
 
 import { ThemeChanger } from "~/components/ThemeChanger";
 import useUserRole from "~/hooks/useUserRole";
-import Cart from "~/components/Cart/Cart";
 import { useAtomValue } from "jotai";
-import { cartAtom } from "~/atoms/cartAtom";
-import useCart from "~/hooks/useCart";
+import Basket from "~/components/Basket/Basket";
+import { basketAtom } from "~/atoms/basketAtom";
+import useBasket from "~/hooks/useBasket";
 
 export default function layoutNavbar() {
   const { theme, setTheme } = useTheme();
   const { pathname } = useLocation();
   const { userRole } = useUserRole();
-  const cart = useAtomValue(cartAtom);
-  useCart();
+  const basket = useAtomValue(basketAtom);
+  useBasket();
 
   useEffect(() => {
     setTheme("light");
@@ -78,12 +78,12 @@ export default function layoutNavbar() {
                 <div>
                   <FaCartShopping size={20} className="text-2xl" />
                   <div className="absolute top-0 -right-1 z-50 bg-red-500 text-white rounded-full w-3.5 h-3.5 flex justify-center items-center">
-                    <span className="text-xs">{cart && cart.basketItems.length}</span>
+                    <span className="text-xs">{basket && basket.basketItems.length}</span>
                   </div>
                 </div>
               </PopoverTrigger>
               <PopoverContent className="w-72 max-h-80 overflow-y-auto">
-                <Cart />
+                <Basket />
               </PopoverContent>
             </Popover>
           </div>

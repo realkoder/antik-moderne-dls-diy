@@ -11,7 +11,7 @@ app.use(express.json());
 // =========================
 // Baskets API
 // =========================
-app.use(basketsRouter)
+app.use(basketsRouter);
 
 // =========================
 // SWAGGER / OPENAPI CONFIG

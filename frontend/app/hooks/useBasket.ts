@@ -1,28 +1,30 @@
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { useAtom } from "jotai";
-import { cartAtom } from "~/atoms/cartAtom";
+import { basketAtom } from "~/atoms/basketAtom";
 import { useAuth } from "@clerk/react-router";
 import { useFetch } from "~/lib/api-client";
 import type { BasketDto, BasketItemCreate } from "@realkoder/antik-moderne-shared-types";
 
-const useCart = () => {
+const useBasket = () => {
     const { fetchData } = useFetch<{ basket: BasketDto }>();
     const { userId } = useAuth();
     const [guid, setGuid] = useState<string | null>();
-    const [cart, setCart] = useAtom(cartAtom);
+    const [basket, setBasket] = useAtom(basketAtom);
 
     useEffect(() => {
-        let localstorageGuid = localStorage.getItem("cartguid")
+        console.log("LOOK", basket);
+    }, [basket]);
+
+    useEffect(() => {
+        let localstorageGuid = localStorage.getItem("basketguid")
         if (!localstorageGuid) {
             const generatedGuid = uuidv4();
-            localStorage.setItem("cartguid", generatedGuid);
+            localStorage.setItem("basketguid", generatedGuid);
         }
         setGuid(localstorageGuid);
 
-        console.log("TRIGGERED", userId);
-
-        if (cart && cart.userId === userId) return;
+        if (basket && basket.userId === userId) return;
         (async () => {
             if (userId) {
                 const response = await fetchData(
@@ -30,7 +32,7 @@ const useCart = () => {
                     { method: "POST", data: { guid: undefined } }
                 );
                 if (response) {
-                    setCart(response.basket);
+                    setBasket(response.basket);
                 }
             } else {
                 if (localstorageGuid) {
@@ -38,55 +40,50 @@ const useCart = () => {
                         "/baskets/auth/api/v1/baskets",
                         { method: "POST", data: { guid: localstorageGuid } }
                     );
+
                     if (response) {
-                        setCart(response.basket);
+                        setBasket(response.basket);
                     }
                 }
             }
         })();
     }, []);
 
-    const addItemToCart = async (basketItemCreate: BasketItemCreate) => {
+    const addItemToBasket = async (basketItemCreate: BasketItemCreate) => {
 
-        // if (userId) {
-        // response = await authRequestClient.basket.addItemToBasket({ basketItemCreate });
         const response = await fetchData(
             "/baskets/auth/api/v1/baskets/add-item",
-            { method: "POST", data: { guid, basketItemCreate } }
+            { method: "PUT", data: { guid, basketItemCreate } }
         );
-        // } else {
-        //     if (guid) {
-        //         response = await getRequestClient(undefined, false).basket.addItemToBasket({ guid, basketItemCreate });
-        //     }
-        // }
+        console.log("HEEYY", response.basket);
 
         if (response && response.basket) {
-            setCart(response.basket);
+            setBasket(response.basket);
         }
     }
 
-    const removeItemFromCart = async (cartItemId: number) => {
+    const removeItemFromBasket = async (basketItemId: number) => {
         // let response;
         // if (userId) {
         //     if (!authRequestClient) return;
-        //     response = await authRequestClient.basket.removeItemFromBasket({ basketItemId: cartItemId });
+        //     response = await authRequestClient.basket.removeItemFromBasket({ basketItemId: basketItemId });
         // } else {
-        //     const guid = localStorage.getItem("cartguid");
+        //     const guid = localStorage.getItem("basketguid");
         //     if (guid) {
-        //         response = await getRequestClient(undefined, false).basket.removeItemFromBasket({ guid, basketItemId: cartItemId });
+        //         response = await getRequestClient(undefined, false).basket.removeItemFromBasket({ guid, basketItemId: basketItemId });
         //     }
         // }
         const response = await fetchData(
             "/baskets/auth/api/v1/baskets/remove-item",
-            { method: "DELETE", data: { guid, basketItemId: cartItemId } }
+            { method: "DELETE", data: { guid, basketItemId: basketItemId } }
         );
 
         if (response && response.basket) {
-            setCart(response.basket);
+            setBasket(response.basket);
         }
     }
 
-    return { addItemToCart, removeItemFromCart };
+    return { addItemToBasket, removeItemFromBasket };
 }
 
-export default useCart;
+export default useBasket;

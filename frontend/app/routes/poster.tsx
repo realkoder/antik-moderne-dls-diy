@@ -1,6 +1,6 @@
 import type { Route } from "./+types/poster";
 import { CiShoppingBasket } from "react-icons/ci";
-import useCart from "~/hooks/useCart";
+
 import { Button } from "~/components/ui/button";
 import {
   Heart,
@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useFetch } from "~/lib/api-client";
 import type { Format, PosterDto } from "@realkoder/antik-moderne-shared-types";
+import useBasket from "~/hooks/useBasket";
 
 export function loader({ params }: Route.LoaderArgs) {
   const posterId = Number(params.posterId);
@@ -34,7 +35,7 @@ export function loader({ params }: Route.LoaderArgs) {
 
 export default function Poster({ loaderData }: Route.ComponentProps) {
   const { poster } = loaderData;
-  const { addItemToCart } = useCart();
+  const { addItemToBasket } = useBasket();
   const [quantities, setQuantities] = useState<
     { format: Format; quantity: number }[]
   >([]);
@@ -68,16 +69,16 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
     });
   };
 
-  const handleAddItemsCart = () => {
+  const handleAddItemsBasket = () => {
     quantities.forEach((formatQuant) => {
       if (formatQuant.quantity !== 0) {
-        addItemToCart({
+        addItemToBasket({
           posterId: poster.id,
           quantity: formatQuant.quantity,
         });
       }
     });
-    toast.info("The posters have been added to your shopping cart");
+    toast.info("The posters have been added to your shopping basket");
   };
 
   return (
@@ -112,7 +113,7 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
               <p>{formatPrice.format}</p>
               <button
                 onClick={() =>
-                  addItemToCart({ posterId: poster.id, quantity: 1 })
+                  addItemToBasket({ posterId: poster.id, quantity: 1 })
                 }
                 className="flex items-center justify-center border border-black p-1 hover:cursor-pointer hover:scale-105 m-2 relative group h-8 w-28"
               >
@@ -159,9 +160,9 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          <Button className="gap-2 flex-1" onClick={() => handleAddItemsCart()}>
+          <Button className="gap-2 flex-1" onClick={() => handleAddItemsBasket()}>
             <ShoppingCart className="h-4 w-4" />
-            Add to Cart
+            Add to basket
           </Button>
           <Button variant="outline" size="icon">
             <Heart className="h-4 w-4" />

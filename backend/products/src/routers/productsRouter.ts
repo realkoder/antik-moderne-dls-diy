@@ -95,9 +95,6 @@ router.get('/products/api/v1/posters/:posterId', async (req, res) => {
  *               posterCreate:
  *                 type: object
  *                 description: The poster data to create
- *               role:
- *                 type: string
- *                 description: The role of the user making the request
  *     responses:
  *       201:
  *         description: Returns the list of posters after creation
@@ -116,8 +113,9 @@ router.get('/products/api/v1/posters/:posterId', async (req, res) => {
  *         description: Internal Server Error
  */
 router.post('/products/auth/api/v1/posters', async (req, res) => {
-    const { posterCreate } = req.body;
-    const { role } = req.body;
+    const role = req.headers['x-user-role'];
+    const { posterCreate} = req.body;
+
 
     try {
         if (!role || role !== Role.ADMIN) {
@@ -158,9 +156,6 @@ router.post('/products/auth/api/v1/posters', async (req, res) => {
  *               posterUpdate:
  *                 type: object
  *                 description: The updated poster data
- *               role:
- *                 type: string
- *                 description: The role of the user making the request
  *     responses:
  *       200:
  *         description: Returns the list of posters after update
@@ -179,8 +174,9 @@ router.post('/products/auth/api/v1/posters', async (req, res) => {
  *         description: Internal Server Error
  */
 router.put('/products/auth/api/v1/posters/:posterId', async (req, res) => {
+    const role = req.headers['x-user-role'];
     const { posterId } = req.params;
-    const { posterUpdate, role } = req.body;
+    const { posterUpdate } = req.body;
 
     try {
         if (!role || role !== Role.ADMIN) {
@@ -211,16 +207,6 @@ router.put('/products/auth/api/v1/posters/:posterId', async (req, res) => {
  *         description: The ID of the poster to delete
  *         schema:
  *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               role:
- *                 type: string
- *                 description: The role of the user making the request
  *     responses:
  *       200:
  *         description: Returns the list of posters after deletion
@@ -240,7 +226,7 @@ router.put('/products/auth/api/v1/posters/:posterId', async (req, res) => {
  */
 router.delete('/products/auth/api/posters/:posterId', async (req, res) => {
     const { posterId } = req.params;
-    const { role } = req.body;
+    const role = req.headers['x-user-role'];
 
     try {
 
