@@ -8,7 +8,7 @@ export interface Response {
     success: boolean;
     message?: string;
     result?: string | number;
-  }
+}
 
 class PosterService {
     private static instance: PosterService;
@@ -238,14 +238,15 @@ class PosterService {
                     },
                 });
 
+                console.log("YO", posterId, poster.posterDescriptions[0].formatPriceDescriptions);
+
                 if (!poster || poster.posterDescriptions.length === 0 || poster.posterDescriptions[0].formatPriceDescriptions.length === 0) {
                     // throw APIError.notFound("Poster, PosterDescription or PosterFormatPricesDescriptions not found");
                     throw Error("Poster, PosterDescription or PosterFormatPricesDescriptions not found");
                 }
 
-                await Promise.all(poster.posterDescriptions[0].formatPriceDescriptions.map(async formatPrice => {
-                    await prisma.removedFormatPrice.create({ data: { formatPriceId: formatPrice.formatPriceId } })
-                }))
+                const formatPriceId = poster.posterDescriptions[0].formatPriceDescriptions[0].formatPriceId
+                await prisma.removedFormatPrice.create({ data: { formatPriceId } })
 
                 await prisma.removedPoster.create({ data: { posterId: poster.id } });
             });
@@ -262,62 +263,6 @@ class PosterService {
             };
         }
     }
-
-    // restorePoster: async (posterId: number): Promise<Response> => {
-    //     try {
-    //         await prismaProducts.$transaction(async (prisma) => {
-    //             const removedPoster = await prisma.removedPoster.findFirst({
-    //                 where: { posterId: posterId },
-    //             });
-
-    //             if (!removedPoster) {
-    //                 throw new Error("Removed poster not found");
-    //             }
-
-    //             await prisma.poster.create({
-    //                 data: {
-    //                     id: removedPoster.posterId,
-    //                     title: removedPoster.title,
-    //                     artistFullName: removedPoster.artistFullName,
-    //                     posterImageUrl: removedPoster.posterImageUrl,
-    //                 },
-    //             });
-
-    //             const removedFormatPrices = await prisma.removedFormatPrice.findMany({
-    //                 where: { posterId: posterId },
-    //             });
-
-    //             for (const removedFormatPrice of removedFormatPrices) {
-    //                 await prisma.formatPrice.create({
-    //                     data: {
-    //                         format: removedFormatPrice.format,
-    //                         price: removedFormatPrice.price,
-    //                         posterId: removedFormatPrice.posterId,
-    //                     },
-    //                 });
-    //             }
-
-    //             await prisma.removedPoster.delete({
-    //                 where: { id: removedPoster.id },
-    //             });
-
-    //             await prisma.removedFormatPrice.deleteMany({
-    //                 where: { posterId: posterId },
-    //             });
-    //         });
-
-    //         return {
-    //             success: true,
-    //             message: "Poster restored successfully",
-    //         };
-    //     } catch (error) {
-    //         console.error("Error restoring poster", error);
-    //         return {
-    //             success: false,
-    //             message: "Error restoring poster",
-    //         };
-    //     }
-    // },
 
     async getRemovedPoster(posterId: number): Promise<RemovedPoster | null> {
         try {

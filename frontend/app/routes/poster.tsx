@@ -12,7 +12,7 @@ import {
   ShoppingCart,
   Truck,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useFetch } from "~/lib/api-client";
 import type { Format, PosterDto } from "@realkoder/antik-moderne-shared-types";
@@ -26,9 +26,7 @@ export function loader({ params }: Route.LoaderArgs) {
 
   return (async () => {
     const { fetchData } = useFetch<{ poster: PosterDto }>();
-    const poster = await fetchData(
-      `/products/api/v1/posters/${posterId}`
-    );
+    const poster = await fetchData(`/products/api/v1/posters/${posterId}`);
     return poster;
   })();
 }
@@ -39,6 +37,9 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
   const [quantities, setQuantities] = useState<
     { format: Format; quantity: number }[]
   >([]);
+  const isPostersAdded = useMemo(() => {
+    return quantities.some((quant) => quant.quantity > 0);
+  }, [quantities]);
 
   useEffect(() => {
     setQuantities(
@@ -95,14 +96,12 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
       {/* Product Info */}
       <div className="flex flex-col">
         <div className="mb-1">
-          <span className="text-sm text-muted-foreground">{poster.title}</span>
+          <span className="text-sm text-muted-foreground">
+            {poster.artistFullName}
+          </span>
         </div>
 
-        <h1 className="text-3xl font-bold mb-3">{poster.artistFullName}</h1>
-
-        {/* <div className="mb-6">
-          <p className="text-2xl font-medium">${poster.formatPrices[0].price.toFixed(2)}</p>
-        </div> */}
+        <h1 className="text-3xl font-bold mb-3">{poster.title}</h1>
 
         {poster.formatPrices.map((formatPrice) => {
           return (
@@ -110,7 +109,7 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
               key={formatPrice.id}
               className="flex justify-center items-center"
             >
-              <p>{formatPrice.format}</p>
+              <p className="min-w-24">{formatPrice.format}</p>
               <button
                 onClick={() =>
                   addItemToBasket({ posterId: poster.id, quantity: 1 })
@@ -160,7 +159,11 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          <Button className="gap-2 flex-1" onClick={() => handleAddItemsBasket()}>
+          <Button
+            className="gap-2 flex-1"
+            disabled={!isPostersAdded}
+            onClick={() => handleAddItemsBasket()}
+          >
             <ShoppingCart className="h-4 w-4" />
             Add to basket
           </Button>
