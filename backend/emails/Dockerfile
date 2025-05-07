@@ -1,3 +1,6 @@
+# build cmd: docker build -t antik-moderne-emails-service:latest ./backend/emails
+# run cmd: docker run -d -p 3003:3003 --name antik-moderne-emails-service antik-moderne-emails-service:latest 
+
 FROM node:23-alpine AS builder
 
 WORKDIR /app

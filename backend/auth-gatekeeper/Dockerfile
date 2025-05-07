@@ -1,3 +1,6 @@
+# build cmd: docker build -t antik-moderne-auth-gatekeeper-service:latest ./backend/auth-gatekeeper
+# run cmd: docker run -d -p 3001:3001 --name antik-moderne-auth-gatekeeper-service antik-moderne-auth-gatekeeper-service:latest 
+
 FROM node:23-alpine AS builder
 
 WORKDIR /app

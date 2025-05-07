@@ -1,3 +1,6 @@
+# build cmd: docker build -t antik-moderne-products-service:latest ./backend/products
+# run cmd: docker run -d -p 3004:3004 --name antik-moderne-products-service antik-moderne-products-service:latest 
+
 FROM node:23-alpine AS builder
 
 WORKDIR /app

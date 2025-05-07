@@ -1,3 +1,6 @@
+# build cmd: docker build -t antik-moderne-baskets-service:latest ./backend/baskets
+# run cmd: docker run -d -p 3002:3002 --name antik-moderne-baskets-service antik-moderne-baskets-service:latest 
+
 FROM node:23-alpine AS builder
 
 WORKDIR /app

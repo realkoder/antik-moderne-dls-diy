@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: users-service
+  name: emails-service
 spec:
   selector:
-    app: users-service
+    app: emails-service
   ports:
   - name: http
-    port: 3005
-    targetPort: 3005
+    port: 3003
+    targetPort: 3003
   type: ClusterIP
