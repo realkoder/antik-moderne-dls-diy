@@ -4,6 +4,19 @@ import BasketsService from "../service/BasketsService.js";
 const router = Router();
 
 /**
+* @openapi
+ * /baskets/api/v1/healt:
+ *   get:
+ *     description: Just for testing service is running and available
+ *     responses:
+ *       200:
+ *         description: Returns a string
+ */
+router.get('/baskets/api/v1/health', (req, res) => {
+    res.send({ data: 'OK' });
+});
+
+/**
  * @openapi
  * /baskets/auth/api/v1/baskets:
  *   get:

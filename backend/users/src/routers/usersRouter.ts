@@ -5,17 +5,16 @@ const router = Router();
 
 /**
  * @openapi
- * /users/api/v1/test:
+ * /users/api/v1/healt:
  *   get:
- *     description: This is just for testing service is running and available
+ *     description: Just for testing service is running and available
  *     responses:
  *       200:
  *         description: Returns a string
  */
-router.get("/users/api/v1/test", (req, res) => {
-    console.log("HElLO ACTUALLY CALLED");
-    res.status(200).send({ data: "OK WOW FORM USER SERVICE" });
-})
+router.get('/users/api/v1/health', (req, res) => {
+    res.send({ data: 'OK' });
+});
 
 /**
  * @openapi

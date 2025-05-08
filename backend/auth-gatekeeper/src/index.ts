@@ -62,6 +62,11 @@ app.post('/api/v1/users/webhook', bodyParser.raw({ type: 'application/json' }), 
 app.use(express.json());
 app.use(clerkMiddleware());
 
+// Ensure app is accessible and running
+app.get('/health', (req, res) => {
+    res.send({ data: 'OK' });
+});
+
 const SERVICES = {
     // AUTH: 'http://localhost:3001',
     BASKETS: 'http://baskets-service:3002',

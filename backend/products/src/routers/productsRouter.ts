@@ -6,6 +6,19 @@ const router = Router();
 
 /**
  * @openapi
+ * /products/api/v1/healt:
+ *   get:
+ *     description: Just for testing service is running and available
+ *     responses:
+ *       200:
+ *         description: Returns a string
+ */
+router.get('/products/api/v1/health', (req, res) => {
+    res.send({ data: 'OK' });
+});
+
+/**
+ * @openapi
  * /products/api/v1/posters:
  *   get:
  *     description: Get all posters
@@ -114,7 +127,7 @@ router.get('/products/api/v1/posters/:posterId', async (req, res) => {
  */
 router.post('/products/auth/api/v1/posters', async (req, res) => {
     const role = req.headers['x-user-role'];
-    const { posterCreate} = req.body;
+    const { posterCreate } = req.body;
 
 
     try {
