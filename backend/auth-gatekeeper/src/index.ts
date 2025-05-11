@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT ?? 3001;
 
 const corsOptions = {
-    origin: ['http://localhost:3000', 'http://frontend-app:5173'],
+    origin: ['http://localhost:3000', 'http://localhost:30000', 'http://frontend-app:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -65,6 +65,7 @@ app.use(clerkMiddleware());
 // Ensure app is accessible and running
 app.get('/health', (req, res) => {
     res.send({ data: 'OK' });
+    return;
 });
 
 const SERVICES = {

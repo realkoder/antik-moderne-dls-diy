@@ -15,7 +15,7 @@ spec:
       containers:
       - name: users-service
         image: antik-moderne-users-service:latest
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3005
         # resources:

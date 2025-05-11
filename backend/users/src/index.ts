@@ -24,12 +24,13 @@ if (process.env.ENV === "docker-compose" || process.env.ENV === "kubernetes-loca
             title: 'Users API',
             version: '0.0.1'
         },
-        apis: ['./src/routers/*Router.ts']
+        apis: process.env.ENV === "kubernetes-local" ? ['./dist/routers/*Router.js'] : ['./src/routers/*Router.ts']
     };
 
     const swaggerOptions = {
         swaggerDefinition,
-        apis: ['./src/routers/*Router.ts']
+        // apis: ['./src/routers/*Router.ts', './dist/routers/*Router.js']
+        apis: process.env.ENV === "kubernetes-local" ? ['./dist/routers/*Router.js'] : ['./src/routers/*Router.ts']
     };
 
     app.use('/users/docs', swaggerUi.serve, swaggerUi.setup(swaggerJsdoc(swaggerOptions)));

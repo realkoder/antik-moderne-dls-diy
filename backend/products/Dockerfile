@@ -11,8 +11,8 @@ RUN npm install --only=production
 
 COPY . .
 
-RUN npm run build
 RUN npx prisma generate --schema=./src/db/schema.prisma
+RUN npm run build
 
 FROM node:23-alpine AS production
 
@@ -28,8 +28,7 @@ RUN chown -R appuser:appgroup /app  # Change ownership
 
 USER appuser
 
-ENV NODE_ENV=kubernetes-local
-ENV PORT=3004
+ENV ENV=kubernetes-local
 
 RUN npm install --only=production
 

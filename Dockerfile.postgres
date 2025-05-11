@@ -1,4 +1,6 @@
-# Use the official PostgreSQL image as the base
+# build cmd: docker build -f ./Dockerfile.postgres -t antik-moderne-postgresdb:latest .
+# run cmd: docker run -d -p 5432:5432 --name antik-moderne-postgresdb antik-moderne-postgresdb:latest 
+
 FROM postgres:latest
 
 # Set environment variables (optional, can also be set in docker-compose)

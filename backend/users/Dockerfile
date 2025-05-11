@@ -1,5 +1,6 @@
 # build cmd: docker build -t antik-moderne-users-service:latest ./backend/users
 # run cmd: docker run -d -p 3005:3005 --name antik-moderne-users-service antik-moderne-users-service:latest 
+
 FROM node:23-alpine AS builder
 
 WORKDIR /app
@@ -10,8 +11,8 @@ RUN npm install --only=production
 
 COPY . .
 
-RUN npm run build
 RUN npx prisma generate --schema=./src/db/schema.prisma
+RUN npm run build
 
 FROM node:23-alpine AS production
 
@@ -27,8 +28,7 @@ RUN chown -R appuser:appgroup /app  # Change ownership
 
 USER appuser
 
-ENV NODE_ENV=kubernetes-local
-ENV PORT=3005
+ENV ENV=kubernetes-local
 
 RUN npm install --only=production
 

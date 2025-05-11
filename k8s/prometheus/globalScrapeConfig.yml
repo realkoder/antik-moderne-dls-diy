@@ -1,0 +1,26 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'emails-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['emails-service:3003']  # Update with your service name/port
+
+  - job_name: 'baskets-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['baskets-service:3002']  # Update with your service name/port
+
+  - job_name: 'users-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['users-service:3005']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 'prometheus:9090'

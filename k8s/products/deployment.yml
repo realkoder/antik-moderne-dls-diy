@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: baskets-service
+  name: products-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: baskets-service
+      app: products-service
   template:
     metadata:
       labels:
-        app: baskets-service
+        app: products-service
     spec:
       containers:
-      - name: baskets-service
-        image: antik-moderne-baskets-service:latest
+      - name: products-service
+        image: antik-moderne-products-service:latest
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 3002
+        - containerPort: 3004
         # resources:
         #   limits:
         #     memory: "512Mi"
@@ -28,12 +28,12 @@ spec:
         # livenessProbe:
         #   httpGet:
         #     path: /health
-        #     port: 3002
+        #     port: 3005
         #   initialDelaySeconds: 30
         #   periodSeconds: 10
         # readinessProbe:
         #   httpGet:
         #     path: /health
-        #     port: 3002
+        #     port: 3005
         #   initialDelaySeconds: 5
         #   periodSeconds: 5

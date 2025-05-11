@@ -307,58 +307,39 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 
-# Add following content to k8s/prometheus/values.yml
-# server:
-#   extraFlags:
-#     - web.enable-remote-write-receiver
-
-# Install Prometheus with remote write enabled which is needed Encore selfhosting
-helm install prometheus prometheus-community/prometheus -n monitoring -f k8s/prometheus/values.yml
-
+helm install prometheus prometheus-community/kube-prometheus-stack -n monitoring
 # Should give this output
 #################################################################################
 
-# Get the Alertmanager URL by running these commands in the same shell:
-#  export POD_NAME=$(kubectl get pods --namespace monitoring -l "app.kubernetes.io/name=alertmanager,app.kubernetes.io/instance=prometheus" -o jsonpath="{.items[0].metadata.name}")
-#  kubectl --namespace monitoring port-forward $POD_NAME 9093
-#################################################################################
-######   WARNING: Pod Security Policy has been disabled by default since    #####
-######            it deprecated after k8s 1.25+. use                        #####
-######            (index .Values "prometheus-node-exporter" "rbac"          #####
-###### .          "pspEnabled") with (index .Values                         #####
-######            "prometheus-node-exporter" "rbac" "pspAnnotations")       #####
-######            in case you still need it.                                #####
-#################################################################################
+# NAME: prometheus
+# LAST DEPLOYED: Sun May 11 22:08:53 2025
+# NAMESPACE: monitoring
+# STATUS: deployed
+# REVISION: 1
+# NOTES:
+# kube-prometheus-stack has been installed. Check its status by running:
+#   kubectl --namespace monitoring get pods -l "release=prometheus"
 
-# The Prometheus PushGateway can be accessed via port 9091 on the following DNS name from within your cluster:
-# prometheus-prometheus-pushgateway.monitoring.svc.cluster.local
+# Get Grafana 'admin' user password by running:
 
-# Get the PushGateway URL by running these commands in the same shell:
-#  export POD_NAME=$(kubectl get pods --namespace monitoring -l "app=prometheus-pushgateway,component=pushgateway" -o jsonpath="{.items[0].metadata.name}")
-#  kubectl --namespace monitoring port-forward $POD_NAME 9091
+#   kubectl --namespace monitoring get secrets prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
 
-#################################################################################
+# Access Grafana local instance:
 
-# Expose Prometheus
-kubectl expose service prometheus-server --type=NodePort --target-port=9090 --name=prometheus-server-ext -n monitoring
+#   export POD_NAME=$(kubectl --namespace monitoring get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=prometheus" -oname)
+#   kubectl --namespace monitoring port-forward $POD_NAME 3000
+
+# Visit https://github.com/prometheus-operator/kube-prometheus for instructions on how to create & configure Alertmanager and Prometheus instances using the Operator.
+
+#################
 
 # Next install Grafana
-helm install grafana grafana/grafana \
-  --namespace monitoring \
-  --set service.type=NodePort \
-  --set adminPassword=encore-metrics
-  --set service.type=LoadBalancer \
-  --set datasources.datasources\\.yaml.apiVersion=1 \
-  --set datasources.datasources\\.yaml.datasources[0].name=Prometheus \
-  --set datasources.datasources\\.yaml.datasources[0].type=prometheus \
-  --set datasources.datasources\\.yaml.datasources[0].url=http://prometheus-server.monitoring.svc.cluster.local:80 \
-  --set datasources.datasources\\.yaml.datasources[0].access=proxy
+helm install grafana grafana/grafana -n monitoring
 
 # Should give this output
 #################################################################################
-
 # NAME: grafana
-# LAST DEPLOYED: Thu Apr 24 22:00:14 2025
+# LAST DEPLOYED: Sun May 11 22:12:16 2025
 # NAMESPACE: monitoring
 # STATUS: deployed
 # REVISION: 1
@@ -373,9 +354,8 @@ helm install grafana grafana/grafana \
 #    grafana.monitoring.svc.cluster.local
 
 #    Get the Grafana URL to visit by running these commands in the same shell:
-#      export NODE_PORT=$(kubectl get --namespace monitoring -o jsonpath="{.spec.ports[0].nodePort}" services grafana)
-#      export NODE_IP=$(kubectl get nodes --namespace monitoring -o jsonpath="{.items[0].status.addresses[0].address}")
-#      echo http://$NODE_IP:$NODE_PORT
+#      export POD_NAME=$(kubectl get pods --namespace monitoring -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
+#      kubectl --namespace monitoring port-forward $POD_NAME 3000
 
 # 3. Login with the password from step 1 and the username: admin
 #################################################################################

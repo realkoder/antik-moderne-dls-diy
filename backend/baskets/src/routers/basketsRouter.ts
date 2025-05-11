@@ -5,7 +5,7 @@ const router = Router();
 
 /**
 * @openapi
- * /baskets/api/v1/healt:
+ * /baskets/api/v1/health:
  *   get:
  *     description: Just for testing service is running and available
  *     responses:

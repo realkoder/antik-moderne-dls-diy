@@ -1,3 +1,14 @@
+# Build the image
+# docker build \
+#   --build-arg VITE_ENV=production \
+#   --build-arg VITE_CLERK_PUBLISHABLE_KEY=your_publishable_key \
+#   --build-arg VITE_CLERK_SECRET_KEY=your_secret_key \
+#   --build-arg VITE_CLERK_SIGN_IN_FALLBACK_URL=your_fallback_url \
+#   --build-arg VITE_CLERK_SIGN_IN_URL=your_sign_in_url \
+#   --build-arg VITE_BASE_URL=your_base_url \
+#   --build-arg VITE_BASE_URL_SSR=your_base_url_ssr \
+#   -t antik-moderne-frontend-app ./frontend
+
 FROM node:20-alpine AS development-dependencies-env
 COPY . /app
 WORKDIR /app

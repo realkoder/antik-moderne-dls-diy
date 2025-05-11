@@ -27,8 +27,7 @@ RUN chown -R appuser:appgroup /app  # Change ownership
 
 USER appuser
 
-ENV NODE_ENV=kubernetes-local
-ENV PORT=3003
+ENV ENV=kubernetes-local
 
 RUN npm install --only=production
 

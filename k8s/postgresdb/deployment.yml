@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: postgresdb-deployment
   labels:
-    app: postgres
+    app: postgresdb
 spec:
   replicas: 1
   selector:
@@ -18,6 +18,7 @@ spec:
       - name: postgresdb
         # image: ghcr.io/realkoder/antik-moderne-postgres:latest
         image: antik-moderne-postgresdb:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5432
         env:
