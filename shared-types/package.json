@@ -1,6 +1,6 @@
 {
   "name": "@realkoder/antik-moderne-shared-types",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "publishConfig": {
@@ -19,6 +19,11 @@
     "dist"
   ],
   "devDependencies": {
+    "@types/express": "^5.0.1",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "prom-client": "^15.1.3"
   }
 }
