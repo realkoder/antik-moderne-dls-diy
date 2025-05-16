@@ -5,6 +5,7 @@ import { clerkMiddleware, getAuth } from '@clerk/express';
 import { Webhook } from "svix";
 import { WebhookEvent } from "@clerk/backend";
 import bodyParser from 'body-parser';
+import promClient from 'prom-client';
 import { connectToRabbitMQ, publishWebhookUserEvent } from './rabbitmqMessaging/config.js';
 
 const app = express();
@@ -69,7 +70,6 @@ app.get('/health', (req, res) => {
 });
 
 const SERVICES = {
-    // AUTH: 'http://localhost:3001',
     BASKETS: 'http://baskets-service:3002',
     PRODUCTS: 'http://products-service:3004',
     USERS: 'http://users-service:3005'
@@ -81,11 +81,18 @@ app.use(async (req, res, next) => {
         console.log("Request Path:", req.path);
         // console.log("Request Body:", req.body);
 
-        // Determine target service
+        // Determine target service base-url
         let target = '';
         if (req.path.startsWith('/baskets')) target = SERVICES.BASKETS;
         if (req.path.startsWith('/products')) target = SERVICES.PRODUCTS;
         if (req.path.startsWith('/users')) target = SERVICES.USERS;
+
+        // If Prom metrics gets requested parse the request furhter on
+        console.log("REQ PATH", req.path);
+        if (req.path === "/metrics") {
+            next();
+            return; // Important with this return since this middleware has to be quited
+        }
 
         if (!target) {
             res.status(404).send('Not Found');
@@ -104,7 +111,7 @@ app.use(async (req, res, next) => {
         createProxyMiddleware({
             target: target,
             on: {
-                // proxyReq: fixRequestBody,
+                // If userId || userRole present they will be added for forwarded request
                 proxyReq: async (proxyReq, incomingReq, res) => {
                     if (userId) {
                         proxyReq.setHeader('x-user-id', userId);
@@ -112,6 +119,7 @@ app.use(async (req, res, next) => {
                     if (userRole) {
                         proxyReq.setHeader('x-user-role', userRole);
                     }
+                    // Fixes issue with parsing the request body
                     fixRequestBody(proxyReq, req);
                 },
             },
@@ -152,6 +160,30 @@ async function authorize(req) {
 app.get("/", (req, res) => {
     res.status(200).send({ data: "OK" });
 })
+
+// ============================
+// Config metrics to Prometheus
+// ============================
+promClient.collectDefaultMetrics();
+
+const httpRequestCounter = new promClient.Counter({
+    name: 'http_requests_total',
+    help: 'Total number of HTTP requests',
+    labelNames: ['method', 'route'],
+});
+
+app.use((req, _, next) => {
+    httpRequestCounter.inc({ method: req.method, route: req.path });
+    next();
+});
+
+// ============================
+// METRICS FOR PROMETHEUS
+// ============================
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', promClient.register.contentType);
+    res.end(await promClient.register.metrics());
+});
 
 connectToRabbitMQ();
 app.listen(PORT, () => console.log(`Express server instantiated PORT ${PORT}`));

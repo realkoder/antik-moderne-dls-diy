@@ -227,7 +227,7 @@ ngrok http --url=sharp-moth-exciting.ngrok-free.app 4000
 
 <br>
 
-### Deployment
+# Deployment
 
 Frontend deployed through _Vercel_
 Backend is deployed with _Encore_ in staging env, since that's free.
@@ -240,7 +240,8 @@ Backend is deployed with _Encore_ in staging env, since that's free.
 
 <br>
 
-### Self hosting
+## CI/CD
+
 Spend a lot of time figurering out the GHCR access - took me hours to figure out that we wasn't allowed to have the repo name in image like _ghcr.io/antik-moderne/frontend-app_ but it should contain the github repo owners username....
 
 This was the cryptic error we were stuck with, since it didn't say anything about bad naming convention for the push command:
@@ -291,90 +292,146 @@ kubectl delete pods -l app=encore-app
 kubectl exec -it <pod_name> -- psql -U postgres
 ```
 
-##### Kubernetes Info
+## Kubernetes Info
+
 The algorithm used by _services_ in _Kubernetes_ depends on the specific type of _service_ default is _round-robin algorithm_ used, where each pod get's a turn to receive a request where all the pods are cycled through in order.
 
-#### Prometheus with Grafana
+## Prometheus with Grafana
 
-Installing _Prometheus_ and _Grafana_ with _Helm_.
+So the following will provide a guide to install an dconfigure _Pometheus_ with _Grafana_ where they will be exposed to localhost:30090 & localhost:30091.
+Prometheus will also have extended scrape configs since it's supposed to scrape _Node.js express services_.
 
+**Prometheus**
+_Ensure to have created the `k8s/prometheus/values.yml`_:
 ```bash
-# Create monitoring namespace
-kubectl create namespace monitoring
+helm install prometheus prometheus-community/prometheus -f k8s/prometheus/serviceMonitor.yml -n monitoring
 
-# Add the needed repos for helm
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo update
+# Should give the following output
+NAME: prometheus
+LAST DEPLOYED: Fri May 16 11:03:34 2025
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+The Prometheus server can be accessed via port 80 on the following DNS name from within your cluster:
+prometheus-server.default.svc.cluster.local
 
-helm install prometheus prometheus-community/kube-prometheus-stack -n monitoring
-# Should give this output
+
+Get the Prometheus server URL by running these commands in the same shell:
+  export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=prometheus,app.kubernetes.io/instance=prometheus" -o jsonpath="{.items[0].metadata.name}")
+  kubectl --namespace default port-forward $POD_NAME 9090
+#################################################################################
+######   WARNING: Persistence is disabled!!! You will lose your data when   #####
+######            the Server pod is terminated.                             #####
 #################################################################################
 
-# NAME: prometheus
-# LAST DEPLOYED: Sun May 11 22:08:53 2025
-# NAMESPACE: monitoring
-# STATUS: deployed
-# REVISION: 1
-# NOTES:
-# kube-prometheus-stack has been installed. Check its status by running:
-#   kubectl --namespace monitoring get pods -l "release=prometheus"
 
-# Get Grafana 'admin' user password by running:
-
-#   kubectl --namespace monitoring get secrets prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
-
-# Access Grafana local instance:
-
-#   export POD_NAME=$(kubectl --namespace monitoring get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=prometheus" -oname)
-#   kubectl --namespace monitoring port-forward $POD_NAME 3000
-
-# Visit https://github.com/prometheus-operator/kube-prometheus for instructions on how to create & configure Alertmanager and Prometheus instances using the Operator.
-
-#################
-
-# Next install Grafana
-helm install grafana grafana/grafana -n monitoring
-
-# Should give this output
 #################################################################################
-# NAME: grafana
-# LAST DEPLOYED: Sun May 11 22:12:16 2025
-# NAMESPACE: monitoring
-# STATUS: deployed
-# REVISION: 1
-# NOTES:
-# 1. Get your 'admin' user password by running:
+######   WARNING: Pod Security Policy has been disabled by default since    #####
+######            it deprecated after k8s 1.25+. use                        #####
+######            (index .Values "prometheus-node-exporter" "rbac"          #####
+###### .          "pspEnabled") with (index .Values                         #####
+######            "prometheus-node-exporter" "rbac" "pspAnnotations")       #####
+######            in case you still need it.                                #####
+#################################################################################
+```
 
-#    kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+**GRAFANA**
+_Ensure to have created the `k8s/grafana/values.yml`_:
+```bash
+helm upgrade -n monitoring grafana -f k8s/grafana/values.yml     
+
+# Should give the following output
+Error: "helm upgrade" requires 2 arguments
+
+Usage:  helm upgrade [RELEASE] [CHART] [flags]
+alexanderchristensen@alexanders-MacBook-Pro-3 antik-moderne-final-project % helm upgrade -n monitoring grafana grafana/grafana -f k8s/grafana/values.yml
+Release "grafana" has been upgraded. Happy Helming!
+NAME: grafana
+LAST DEPLOYED: Fri May 16 12:35:29 2025
+NAMESPACE: monitoring
+STATUS: deployed
+REVISION: 2
+NOTES:
+1. Get your 'admin' user password by running:
+
+   kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 
 
-# 2. The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+2. The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
 
-#    grafana.monitoring.svc.cluster.local
+   grafana.monitoring.svc.cluster.local
 
-#    Get the Grafana URL to visit by running these commands in the same shell:
-#      export POD_NAME=$(kubectl get pods --namespace monitoring -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
-#      kubectl --namespace monitoring port-forward $POD_NAME 3000
+   Get the Grafana URL to visit by running these commands in the same shell:
+     export POD_NAME=$(kubectl get pods --namespace monitoring -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
+     kubectl --namespace monitoring port-forward $POD_NAME 3000
 
-# 3. Login with the password from step 1 and the username: admin
+3. Login with the password from step 1 and the username: admin
 #################################################################################
 ######   WARNING: Persistence is disabled!!! You will lose your data when   #####
 ######            the Grafana pod is terminated.                            #####
 #################################################################################
-
-#################################################################################
-
-# Get the password
-kubectl get secret -n monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode
-
-# Get external grafana port
-kubectl get svc grafana -n monitoring
-# Grafana is accessible at: http://localhost:30714
-
 ```
 
+If changes are made to `values.yml` could be for _grafana_ then run following to upgrade with _helm_:
+```bash
+helm upgrade -n monitoring grafana grafana/grafana -f k8s/grafana/values.yml 
+```
+
+
+**Import Dashboards**
+
+Add datasource in _Grafana_: **http://prometheus-server:80**
+
+Kubernetes cluster monitoring: Use dashboard **ID 3119**
+
+_Node.js and Express Metrics_ monitoring: Use dashboard **ID 14565**
+
+
+**Verification Steps:**
+
+Check Prometheus targets: http://localhost:30090/targets
+
+_Grafana_ should show both _Kubernetes_ and Node.js metrics
+
+
+**Remember to:**
+
+Expose metrics port in your Node.js Service definition
+
+Adjust scrape intervals in Prometheus values if needed
+
+Add persistent storage for production use
+
+Secure endpoints with authentication in production environments
+
+###  Infrastructure Monitoring
+
+The _kube-prometheus-stack_ comes pre-configured for infrastructure monitoring through two main exporters:
+
+- **Node Exporter**: Scrapes system-level metrics from Kubernetes nodes (CPU, memory usage, disk utilization)
+
+- **Kube State Metrics**: Collects metrics about Kubernetes objects' health, configuration, and availability
+
+_To access the Prometheus UI and Grafana UI, use port forwarding_:
+```bash
+# Prometheus
+kubectl port-forward svc/prometheus-operated -n monitoring 9090:9090
+
+# Grafana
+# Username: admin
+# Password: prom-operator
+kubectl port-forward svc/prometheus-grafana -n monitoring 3000:80
+
+# For Grafana use this to retrieve password
+kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode
+```    
+
+**Docs for exposing metrics to Prometheus from Node.js Express app** https://kubernetestraining.io/blog/node-js-prometheus-monitoring-express-prometheus-middleware
+
 Bonus commands:
+
 ```bash
 # Upgrading helm Prometheus
    helm upgrade prometheus prometheus-community/prometheus \
@@ -382,6 +439,7 @@ Bonus commands:
      -f k8s/prometheus/values.yml
 ```
 
+---
 
 ### Self Hosting ReactRouter-v7 applications
 
@@ -404,16 +462,16 @@ The docker image is making use of the npm scripts `build & start` where the star
   }
 ```
 
-
 ### Self Hosting Encore applications
 
-With __Encore__ applications, a lot happens behind the scenes, which means many features come out of the box, such as pub/sub messaging, database setup with migration logic, testing automation, and gatekeeper servicing. To run in production and ensure everything operates smoothly, your setup may depend on __Encore__, which can be costly. Therefore, they provide the option to self-host. This is accomplished by using the command `encore build docker`, which allows you to either package the entire __Encore__ application into a single Docker image or dockerize each specific service individually.
+With **Encore** applications, a lot happens behind the scenes, which means many features come out of the box, such as pub/sub messaging, database setup with migration logic, testing automation, and gatekeeper servicing. To run in production and ensure everything operates smoothly, your setup may depend on **Encore**, which can be costly. Therefore, they provide the option to self-host. This is accomplished by using the command `encore build docker`, which allows you to either package the entire **Encore** application into a single Docker image or dockerize each specific service individually.
 To build the Encore application with Docker, it requires an **infra-config.json** file to specify dependencies such as databases, environment variables, and pub/sub configurations.
 
 ```bash
 # Command to build whole encore app in one docker image
 encore build docker --base=node:20-bullseye --config infra-config.json --arch=arm64 antikmoderne:v1
 ```
+
 ![raised issue pubsub pull req closed](images/raised-issue-pubsub-pull-req-closed.png)
 
 <br>
@@ -429,17 +487,14 @@ npm install swagger-jsdoc swagger-ui-express
 
 # Since we use TS we need types
 npm i --save-dev @types/swagger-jsdoc
-npm i --save-dev @types/swagger-ui-express 
+npm i --save-dev @types/swagger-ui-express
 ```
-
 
 <br>
 
 ---
 
 <br>
-
-
 
 ## Bonus links and miscellaneous
 

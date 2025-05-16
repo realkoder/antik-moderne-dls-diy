@@ -1,0 +1,60 @@
+# Helm is used to configure the prometheus and grafana setup
+# helm install prometheus prometheus-community/prometheus -f k8s/prometheus/values.yml -n monitoring
+
+server:
+  enabled: true
+  extraFlags:
+    - "web.enable-lifecycle"
+  service:
+    type: NodePort  # Expose the service as NodePort
+    port: 80  # Service port
+    targetPort: 80
+    nodePort: 30090
+
+  persistentVolume:
+    enabled: false  # For local cluster
+alertmanager:
+  enabled: false
+prometheus-pushgateway:
+  enabled: false
+
+serviceMonitorSelectorNilUsesHelmValues: false
+podMonitorSelectorNilUsesHelmValues: false
+
+serverFiles:
+  prometheus.yml:
+    scrape_configs:
+      - job_name: 'auth-gatekeeper-service'
+        metrics_path: '/metrics'
+        static_configs:
+          - targets: ['auth-gatekeeper-service.default.svc.cluster.local:3001']
+
+      - job_name: 'baskets-service'
+        metrics_path: '/baskets/metrics'
+        static_configs:
+          - targets: ['baskets-service.default.svc.cluster.local:3002']
+
+      - job_name: 'products-service'
+        metrics_path: '/products/metrics'
+        static_configs:
+          - targets: ['products-service.default.svc.cluster.local:3004']
+
+      - job_name: 'users-service'
+        metrics_path: '/users/metrics'
+        static_configs:
+          - targets: ['users-service.default.svc.cluster.local:3005']
+
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+
+      - job_name: 'kube-state-metrics'
+        metrics_path: /metrics
+        static_configs:
+          - targets: ['prometheus-kube-state-metrics.monitoring.svc.cluster.local:8080']
+
+      - job_name: 'grafana'
+        honor_labels: true
+        metrics_path: '/metrics'
+        static_configs:
+          - targets: ['grafana.monitoring.svc.cluster.local:80']

@@ -1,4 +1,5 @@
 import express from "express";
+import promClient from 'prom-client';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import productsRouter from './routers/productsRouter.js';
@@ -12,6 +13,30 @@ app.use(express.json());
 // Products API
 // =========================
 app.use(productsRouter);
+
+// ============================
+// Config metrics to Prometheus
+// ============================
+promClient.collectDefaultMetrics();
+
+const httpRequestCounter = new promClient.Counter({
+    name: 'http_requests_total',
+    help: 'Total number of HTTP requests',
+    labelNames: ['method', 'route'],
+});
+
+app.use((req, _, next) => {
+    httpRequestCounter.inc({ method: req.method, route: req.path });
+    next();
+});
+
+// ============================
+// METRICS FOR PROMETHEUS
+// ============================
+app.get('/products/metrics', async (req, res) => {
+    res.set('Content-Type', promClient.register.contentType);
+    res.end(await promClient.register.metrics());
+});
 
 // =========================
 // SWAGGER / OPENAPI CONFIG

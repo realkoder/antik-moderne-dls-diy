@@ -1,0 +1,8 @@
+# Install with helm: helm install grafana grafana/grafana -f k8s/grafana/values.yml -n monitoring
+
+service:
+  enabled: true
+  type: NodePort
+  port: 80  # Service port (Grafana default)
+  targetPort: 3000  # Grafana container port
+  nodePort: 30091

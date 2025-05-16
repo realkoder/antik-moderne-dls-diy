@@ -36,7 +36,7 @@ class UserService {
             last_sign_in_at: event.last_sign_in_at ? new Date(event.last_sign_in_at) : null,
             updated_at: new Date(event.updated_at),
         };
-
+        
         try {
             const user = await prismaUsers.$transaction(async (prisma) => {
                 const user = await prismaUsers.user.create({ data: userNormalized });

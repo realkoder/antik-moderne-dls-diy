@@ -1,7 +1,12 @@
 # build cmd: docker build -f ./Dockerfile.postgres -t antik-moderne-postgresdb:latest .
 # run cmd: docker run -d -p 5432:5432 --name antik-moderne-postgresdb antik-moderne-postgresdb:latest 
 
-FROM postgres:latest
+# Used postgres:latest which introduced larger image size - could be reduced by using alpine
+# Current image size: 459MB
+# FROM postgres:latest
+
+# Current image size: 270
+FROM postgres:17.5-alpine
 
 # Set environment variables (optional, can also be set in docker-compose)
 ENV POSTGRES_PASSWORD=admin
