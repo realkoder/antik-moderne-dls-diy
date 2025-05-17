@@ -1,4 +1,4 @@
-import express, { Response } from "express";
+import express, { Response, Request } from "express";
 import cors from 'cors';
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { clerkMiddleware, getAuth } from '@clerk/express';
@@ -92,7 +92,7 @@ const SERVICES = {
     USERS: 'http://users-service:3005'
 };
 
-interface CustomRequest extends IncomingMessage {
+interface CustomIncomingMessage extends IncomingMessage {
     authContext?: {
         userId?: string;
         userRole?: string;
@@ -105,8 +105,7 @@ const createServiceProxy = (target: string) => {
         target,
         changeOrigin: true,
         on: {
-            proxyReq: (proxyReq, req: CustomRequest, res) => {
-                // Move authorization logic here
+            proxyReq: (proxyReq, req: CustomIncomingMessage, res) => {
                 const auth = req.authContext || {};  // Set in main middleware
                 if (auth.userId) {
                     proxyReq.setHeader('x-user-id', auth.userId);
@@ -131,11 +130,17 @@ const serviceProxies = {
     users: createServiceProxy(SERVICES.USERS)
 };
 
-app.use(async (req, res, next) => {
+interface CustomRequest extends Request {
+    authContext?: {
+        userId?: string;
+        userRole?: string;
+    };
+}
+
+app.use(async (req: CustomRequest, res, next) => {
     try {
         console.log("Request Method:", req.method);
         console.log("Request Path:", req.path);
-        // console.log("Request Body:", req.body);
 
         // Determine target service base-url
         let proxy;
@@ -156,16 +161,8 @@ app.use(async (req, res, next) => {
         }
 
         // Authorization logic
-        // let userId: string, userRole: string;
-        // if (req.path.split("/")[2] === "auth") {
-        //     const authResult = await authorize(req); // Await the authorization
-        //     userId = authResult.userId;
-        //     userRole = authResult.userRole;
-        // }
-
         if (req.path.split("/")[2] === "auth") {
             const authResult = await authorize(req);
-            // @ts-ignore
             req.authContext = {
                 userId: authResult.userId,
                 userRole: authResult.userRole
