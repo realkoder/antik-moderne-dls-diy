@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Response } from "express";
 import cors from 'cors';
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { clerkMiddleware, getAuth } from '@clerk/express';
@@ -8,6 +8,7 @@ import bodyParser from 'body-parser';
 import promClient from 'prom-client';
 import { connectToRabbitMQ, publishWebhookUserEvent } from './rabbitmqMessaging/config.js';
 import { requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types";
+import { IncomingMessage } from "http";
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -91,6 +92,45 @@ const SERVICES = {
     USERS: 'http://users-service:3005'
 };
 
+interface CustomRequest extends IncomingMessage {
+    authContext?: {
+        userId?: string;
+        userRole?: string;
+    };
+}
+
+// Create proxy middlewares upfront instead of per-request
+const createServiceProxy = (target: string) => {
+    return createProxyMiddleware({
+        target,
+        changeOrigin: true,
+        on: {
+            proxyReq: (proxyReq, req: CustomRequest, res) => {
+                // Move authorization logic here
+                const auth = req.authContext || {};  // Set in main middleware
+                if (auth.userId) {
+                    proxyReq.setHeader('x-user-id', auth.userId);
+                }
+                if (auth.userRole) {
+                    proxyReq.setHeader('x-user-role', auth.userRole);
+                }
+                fixRequestBody(proxyReq, req);
+            },
+            error: (err, req, res: Response) => {
+                console.error('Proxy error:', err);
+                res.status(502).json({ error: 'Bad Gateway' });
+            }
+        }
+    });
+};
+
+// Create proxies once during initialization
+const serviceProxies = {
+    baskets: createServiceProxy(SERVICES.BASKETS),
+    products: createServiceProxy(SERVICES.PRODUCTS),
+    users: createServiceProxy(SERVICES.USERS)
+};
+
 app.use(async (req, res, next) => {
     try {
         console.log("Request Method:", req.method);
@@ -98,10 +138,10 @@ app.use(async (req, res, next) => {
         // console.log("Request Body:", req.body);
 
         // Determine target service base-url
-        let target = '';
-        if (req.path.startsWith('/baskets')) target = SERVICES.BASKETS;
-        if (req.path.startsWith('/products')) target = SERVICES.PRODUCTS;
-        if (req.path.startsWith('/users')) target = SERVICES.USERS;
+        let proxy;
+        if (req.path.startsWith('/baskets')) proxy = serviceProxies.baskets;
+        if (req.path.startsWith('/products')) proxy = serviceProxies.products;
+        if (req.path.startsWith('/users')) proxy = serviceProxies.users;
 
         // If Prom metrics gets requested parse the request furhter on
         console.log("REQ PATH", req.path);
@@ -110,36 +150,29 @@ app.use(async (req, res, next) => {
             return; // Important with this return since this middleware has to be quited
         }
 
-        if (!target) {
+        if (!proxy) {
             res.status(404).send('Not Found');
             return;
         }
 
         // Authorization logic
-        let userId: string, userRole: string;
+        // let userId: string, userRole: string;
+        // if (req.path.split("/")[2] === "auth") {
+        //     const authResult = await authorize(req); // Await the authorization
+        //     userId = authResult.userId;
+        //     userRole = authResult.userRole;
+        // }
+
         if (req.path.split("/")[2] === "auth") {
-            const authResult = await authorize(req); // Await the authorization
-            userId = authResult.userId;
-            userRole = authResult.userRole;
+            const authResult = await authorize(req);
+            // @ts-ignore
+            req.authContext = {
+                userId: authResult.userId,
+                userRole: authResult.userRole
+            };
         }
 
-        // Forward to target service
-        createProxyMiddleware({
-            target: target,
-            on: {
-                // If userId || userRole present they will be added for forwarded request
-                proxyReq: async (proxyReq, incomingReq, res) => {
-                    if (userId) {
-                        proxyReq.setHeader('x-user-id', userId);
-                    }
-                    if (userRole) {
-                        proxyReq.setHeader('x-user-role', userRole);
-                    }
-                    // Fixes issue with parsing the request body
-                    fixRequestBody(proxyReq, req);
-                },
-            },
-        })(req, res, next);
+        proxy(req, res, next);
 
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });

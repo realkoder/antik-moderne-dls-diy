@@ -19,7 +19,7 @@ services:
     ports:
       - "5431:5432"
     environment:
-      POSTGRES_USER: postgres  # Set the PostgreSQL user
+      POSTGRES_USER: postgres
       PGPASSWORD: admin
     volumes:
       - postgres_data:/var/lib/postgresql/data

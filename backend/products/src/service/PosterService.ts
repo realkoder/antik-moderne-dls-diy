@@ -238,8 +238,6 @@ class PosterService {
                     },
                 });
 
-                console.log("YO", posterId, poster.posterDescriptions[0].formatPriceDescriptions);
-
                 if (!poster || poster.posterDescriptions.length === 0 || poster.posterDescriptions[0].formatPriceDescriptions.length === 0) {
                     // throw APIError.notFound("Poster, PosterDescription or PosterFormatPricesDescriptions not found");
                     throw Error("Poster, PosterDescription or PosterFormatPricesDescriptions not found");
