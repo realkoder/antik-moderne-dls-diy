@@ -1,5 +1,5 @@
 # ===========================================================
-#       🐳 🐳 🐳 🐳 🐳 DOCKER COMPOSE 🐳 🐳 🐳 🐳 🐳
+#       🐳 🐳 🐳 🐳 🐳 DOCKER COMPOSE DEV 🐳 🐳 🐳 🐳 🐳
 # ===========================================================
 # docker-compose up: docker-compose -f docker-compose.dev.yml up
 # docker-compose logs: docker-compose -f docker-compose.dev.yml logs -f
@@ -15,9 +15,12 @@ services:
     container_name: postgresdb
     build:
       context: .
-      dockerfile: Dockerfile.postgres
+      dockerfile: Dockerfile.postgres.dev
     ports:
       - "5431:5432"
+    environment:
+      POSTGRES_USER: postgres  # Set the PostgreSQL user
+      POSTGRES_PASSWORD: admin
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/users/src/db/migrations:/docker-entrypoint-initdb.d/migrations_users  # Users migrations
@@ -158,7 +161,32 @@ services:
     networks:
         - microservices
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheusValues.dev.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - microservices
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "9091:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - microservices
+
+
 volumes:
   postgres_data: {}
+  grafana_data: {} # Want to save the dashboard and other configs for Grafana
   
   

@@ -302,7 +302,7 @@ So the following will provide a guide to install an dconfigure _Pometheus_ with 
 Prometheus will also have extended scrape configs since it's supposed to scrape _Node.js express services_.
 
 **Prometheus**
-_Ensure to have created the `k8s/prometheus/values.yml`_:
+_Ensure to have created the `k8s/prometheus/values.yml` before installing with Helm_:
 ```bash
 helm install prometheus prometheus-community/prometheus -f k8s/prometheus/serviceMonitor.yml -n monitoring
 
@@ -338,15 +338,11 @@ Get the Prometheus server URL by running these commands in the same shell:
 ```
 
 **GRAFANA**
-_Ensure to have created the `k8s/grafana/values.yml`_:
+_Ensure to have created the `k8s/grafana/values.yml` before installing with Helm:
 ```bash
-helm upgrade -n monitoring grafana -f k8s/grafana/values.yml     
+helm install prometheus prometheus-community/prometheus -f k8s/prometheus/values.yml -n monitoring
 
 # Should give the following output
-Error: "helm upgrade" requires 2 arguments
-
-Usage:  helm upgrade [RELEASE] [CHART] [flags]
-alexanderchristensen@alexanders-MacBook-Pro-3 antik-moderne-final-project % helm upgrade -n monitoring grafana grafana/grafana -f k8s/grafana/values.yml
 Release "grafana" has been upgraded. Happy Helming!
 NAME: grafana
 LAST DEPLOYED: Fri May 16 12:35:29 2025
@@ -379,6 +375,7 @@ If changes are made to `values.yml` could be for _grafana_ then run following to
 helm upgrade -n monitoring grafana grafana/grafana -f k8s/grafana/values.yml 
 ```
 
+---
 
 **Import Dashboards**
 
@@ -414,16 +411,8 @@ The _kube-prometheus-stack_ comes pre-configured for infrastructure monitoring t
 
 - **Kube State Metrics**: Collects metrics about Kubernetes objects' health, configuration, and availability
 
-_To access the Prometheus UI and Grafana UI, use port forwarding_:
+If not configuring the password use following to get the admin password:
 ```bash
-# Prometheus
-kubectl port-forward svc/prometheus-operated -n monitoring 9090:9090
-
-# Grafana
-# Username: admin
-# Password: prom-operator
-kubectl port-forward svc/prometheus-grafana -n monitoring 3000:80
-
 # For Grafana use this to retrieve password
 kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode
 ```    

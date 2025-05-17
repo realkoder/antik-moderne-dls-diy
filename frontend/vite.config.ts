@@ -5,7 +5,8 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   optimizeDeps: {
-    exclude: ['@chakra-ui/react'],
+    // Excluding com.chrome.devtools.json since it resulted in: Error: No route matches URL "/.well-known/appspecific/com.chrome.devtools.json"
+    exclude: ['@chakra-ui/react', 'com.chrome.devtools.json'],
   },
   server: {
     host: '0.0.0.0',

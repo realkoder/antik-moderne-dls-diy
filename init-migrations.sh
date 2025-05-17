@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script is exectued first time postgresql is initaited or else manually by: docker exec -it postgresdb /docker-entrypoint-initdb.d/run-migrations.sh
+
 # Loop through each migration directory for different services
 for SERVICE_DIR in /docker-entrypoint-initdb.d/migrations_*; do
     # Extract the database name from the directory name
@@ -11,6 +13,18 @@ for SERVICE_DIR in /docker-entrypoint-initdb.d/migrations_*; do
         createdb -U "$POSTGRES_USER" "$DB_NAME"
     else
         echo "Database ${DB_NAME} exists."
+
+        # Check the collation of the existing database
+        COLLATION=$(psql -U "$POSTGRES_USER" -d "$DB_NAME" -t -c "SELECT datcollate FROM pg_database WHERE datname = '$DB_NAME';")
+        
+        # Set the desired collation if it is not correct
+        if [ "$COLLATION" != "en_US.UTF-8" ]; then
+            echo "Setting collation for database ${DB_NAME} to en_US.UTF-8."
+            psql -U "$POSTGRES_USER" -d "$DB_NAME" -c "ALTER DATABASE \"$DB_NAME\" SET LC_COLLATE TO 'en_US.UTF-8';"
+            psql -U "$POSTGRES_USER" -d "$DB_NAME" -c "ALTER DATABASE \"$DB_NAME\" SET LC_CTYPE TO 'en_US.UTF-8';"
+        else
+            echo "Collation for database ${DB_NAME} is already set correctly."
+        fi
     fi
 
     # Connect to the relevant database

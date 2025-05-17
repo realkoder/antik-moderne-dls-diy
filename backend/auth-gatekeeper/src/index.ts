@@ -7,6 +7,7 @@ import { WebhookEvent } from "@clerk/backend";
 import bodyParser from 'body-parser';
 import promClient from 'prom-client';
 import { connectToRabbitMQ, publishWebhookUserEvent } from './rabbitmqMessaging/config.js';
+import { requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types";
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -62,6 +63,21 @@ app.post('/api/v1/users/webhook', bodyParser.raw({ type: 'application/json' }), 
 
 app.use(express.json());
 app.use(clerkMiddleware());
+
+// ============================
+// Config metrics to Prometheus
+// ============================
+app.use(requestCounterMiddleware); // Use the request counter middleware
+app.use(responseLengthMiddleware); // Use the response length middleware
+app.use(requestDurationMiddleware); // Use the request duration middleware
+
+// ============================
+// METRICS FOR PROMETHEUS
+// ============================
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', promClient.register.contentType);
+    res.end(await promClient.register.metrics());
+});
 
 // Ensure app is accessible and running
 app.get('/health', (req, res) => {
@@ -160,30 +176,6 @@ async function authorize(req) {
 app.get("/", (req, res) => {
     res.status(200).send({ data: "OK" });
 })
-
-// ============================
-// Config metrics to Prometheus
-// ============================
-promClient.collectDefaultMetrics();
-
-const httpRequestCounter = new promClient.Counter({
-    name: 'http_requests_total',
-    help: 'Total number of HTTP requests',
-    labelNames: ['method', 'route'],
-});
-
-app.use((req, _, next) => {
-    httpRequestCounter.inc({ method: req.method, route: req.path });
-    next();
-});
-
-// ============================
-// METRICS FOR PROMETHEUS
-// ============================
-app.get('/metrics', async (req, res) => {
-    res.set('Content-Type', promClient.register.contentType);
-    res.end(await promClient.register.metrics());
-});
 
 connectToRabbitMQ();
 app.listen(PORT, () => console.log(`Express server instantiated PORT ${PORT}`));

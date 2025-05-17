@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'auth-gatekeeper-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['auth-gatekeeper-service:3001']
+
+  - job_name: 'baskets-service'
+    metrics_path: '/baskets/metrics'
+    static_configs:
+      - targets: ['baskets-service:3002']
+
+  - job_name: 'products-service'
+    metrics_path: '/products/metrics'
+    static_configs:
+      - targets: ['products-service:3004']
+
+  - job_name: 'users-service'
+    metrics_path: '/users/metrics'
+    static_configs:
+      - targets: ['users-service:3005']
+
+  - job_name: 'grafana'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['grafana:3000']

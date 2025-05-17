@@ -1,5 +1,5 @@
 # ===========================================================
-#       🐳 🐳 🐳 🐳 🐳 DOCKER COMPOSE 🐳 🐳 🐳 🐳 🐳
+#       🐳 🐳 🐳 🐳 🐳 DOCKER COMPOSE PROD 🐳 🐳 🐳 🐳 🐳
 # ===========================================================
 # docker-compose up: docker-compose -f docker-compose.prod.yml up -d
 # docker-compose logs: docker-compose -f docker-compose.prod.yml logs -f

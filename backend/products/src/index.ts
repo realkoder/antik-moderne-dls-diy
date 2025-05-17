@@ -3,40 +3,33 @@ import promClient from 'prom-client';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import productsRouter from './routers/productsRouter.js';
+import { requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types";
 
 const app = express();
 const PORT = process.env.PORT ?? 3004;
 
 app.use(express.json());
 
-// =========================
-// Products API
-// =========================
-app.use(productsRouter);
-
 // ============================
 // Config metrics to Prometheus
 // ============================
-promClient.collectDefaultMetrics();
-
-const httpRequestCounter = new promClient.Counter({
-    name: 'http_requests_total',
-    help: 'Total number of HTTP requests',
-    labelNames: ['method', 'route'],
-});
-
-app.use((req, _, next) => {
-    httpRequestCounter.inc({ method: req.method, route: req.path });
-    next();
-});
+app.use(requestCounterMiddleware); // Use the request counter middleware
+app.use(responseLengthMiddleware); // Use the response length middleware
+app.use(requestDurationMiddleware); // Use the request duration middleware
 
 // ============================
-// METRICS FOR PROMETHEUS
+// GET METRICS FOR PROMETHEUS
 // ============================
 app.get('/products/metrics', async (req, res) => {
     res.set('Content-Type', promClient.register.contentType);
     res.end(await promClient.register.metrics());
 });
+
+// =========================
+// Products API
+// =========================
+app.use(productsRouter);
+
 
 // =========================
 // SWAGGER / OPENAPI CONFIG

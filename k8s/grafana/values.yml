@@ -6,3 +6,6 @@ service:
   port: 80  # Service port (Grafana default)
   targetPort: 3000  # Grafana container port
   nodePort: 30091
+
+adminUser: "admin"
+adminPassword: "admin"
