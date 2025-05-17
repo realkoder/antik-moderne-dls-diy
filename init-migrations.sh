@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # This script is exectued first time postgresql is initaited or else manually by: docker exec -it postgresdb /docker-entrypoint-initdb.d/run-migrations.sh
+export PGPASSWORD="$POSTGRES_PASSWORD"
 
 # Loop through each migration directory for different services
 for SERVICE_DIR in /docker-entrypoint-initdb.d/migrations_*; do

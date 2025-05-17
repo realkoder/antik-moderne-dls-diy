@@ -105,7 +105,7 @@ class BasketsService {
                 basketItems: true
             },
         });
-
+        
         if (!basket) throw Error("Something went wrong finding basket");
 
         if (basket.basketItems && basket.basketItems.length > 0) {
