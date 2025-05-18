@@ -3,8 +3,9 @@ name: Build and Push Docker Images auth-gatekeeper
 on:
   push:
     branches: [main]
-    # paths:
-    #   - 'backend/auth-gatekeeper/**'
+    paths:
+      - 'backend/auth-gatekeeper/**'
+      - '.github/workflows/build-docker-image-auth-gatekeeper.yml'
 
 permissions:
   contents: read

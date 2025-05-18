@@ -3,8 +3,9 @@ name: Build and Push Docker Images - Postgresql
 on:
   push:
     branches: [main]
-    # paths:
-    #     - 'backend/**/src/db/schema.prisma'
+    paths:
+        - 'backend/**/src/db/schema.prisma'
+        - '.github/workflows/build-docker-image-postgresql.yml'
 
 permissions:
   contents: read
@@ -38,5 +39,5 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile.postgres
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_POSTGRES }}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_POSTGRESDB }}:latest
           platforms: linux/arm64,linux/amd64
