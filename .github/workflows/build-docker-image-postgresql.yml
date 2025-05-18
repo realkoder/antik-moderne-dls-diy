@@ -36,8 +36,7 @@ jobs:
       - name: Build and Push Postgres Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
-          file: ./backend/Dockerfile.postgres
+          file: ./Dockerfile.postgres
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_POSTGRESDB }}:latest
           platforms: linux/arm64,linux/amd64
