@@ -4,6 +4,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import productsRouter from './routers/productsRouter.js';
 import { requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types";
+import { connectToRabbitMQ } from "./rabbitmqMessaging/config.js";
 
 const app = express();
 const PORT = process.env.PORT ?? 3004;
@@ -52,4 +53,5 @@ if (process.env.ENV === "docker-compose" || process.env.ENV === "kubernetes-loca
     app.use('/products/docs', swaggerUi.serve, swaggerUi.setup(swaggerJsdoc(swaggerOptions)));
 }
 
+connectToRabbitMQ()
 app.listen(PORT, () => console.log(`products-service running at PORT ${PORT}`));

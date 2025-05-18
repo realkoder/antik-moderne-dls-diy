@@ -1,7 +1,7 @@
-
 import { RemovedPoster, Format as FormatEnum } from "@prisma/client";
 import { prismaProducts } from "../db/database.js";
-import { Format, PosterCreate, PosterDto, PosterUpdate } from "@realkoder/antik-moderne-shared-types";
+import { Format, FormatPriceDto, PosterCreate, PosterDto, PosterUpdate } from "@realkoder/antik-moderne-shared-types";
+import { publishProductAddedEvent } from "../rabbitmqMessaging/config.js";
 
 
 export interface Response {
@@ -28,7 +28,7 @@ class PosterService {
                 throw Error("Poster or formatPrices format is invalid");
             }
 
-            await prismaProducts.$transaction(async (prisma) => {
+            const x = await prismaProducts.$transaction(async (prisma) => {
 
                 const createdPoster = await prisma.poster.create({
                     data: {}
@@ -44,9 +44,9 @@ class PosterService {
                 });
                 const createdFormatPrice = await prisma.formatPrice.create({});
 
-                await Promise.all(posterCreate.formatPrices.map(async ({ format, price }) => {
+                const formatPricesDto = await Promise.all(posterCreate.formatPrices.map(async ({ format, price }) => {
 
-                    await prisma.formatPriceDescription.create({
+                    const createdFormatPriceDescription = await prisma.formatPriceDescription.create({
                         data: {
                             formatPriceId: createdFormatPrice.id,
                             posterDescriptionId: createdPosterDescription.id,
@@ -55,8 +55,24 @@ class PosterService {
                             createdAt: new Date(),
                         },
                     });
+                    return {
+                        id: createdFormatPriceDescription.id,
+                        format: createdFormatPriceDescription.format,
+                        price: createdFormatPriceDescription.price
+                    } as FormatPriceDto
                 }));
+
+                return {
+                    id: createdPoster.id,
+                    title: createdPosterDescription.title,
+                    artistFullName: createdPosterDescription.artistFullName,
+                    posterImageUrl: createdPosterDescription.posterImageUrl,
+                    createdAt: createdPosterDescription.createdAt,
+                    formatPrices: formatPricesDto
+                } as PosterDto;
             });
+
+            publishProductAddedEvent(x)
 
             return {
                 success: true,

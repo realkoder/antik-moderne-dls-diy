@@ -1,14 +1,11 @@
-import express, { Response, Request } from "express";
+import express from "express";
 import cors from 'cors';
-import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
-import { clerkMiddleware, getAuth } from '@clerk/express';
-import { Webhook } from "svix";
-import { WebhookEvent } from "@clerk/backend";
-import bodyParser from 'body-parser';
+import { clerkMiddleware } from '@clerk/express';
 import promClient from 'prom-client';
-import { connectToRabbitMQ, publishWebhookUserEvent } from './rabbitmqMessaging/config.js';
+import { connectToRabbitMQ } from './rabbitmqMessaging/config.js';
 import { requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types";
-import { IncomingMessage } from "http";
+import webHookRouter from './routers/webhookRouter.js';
+import proxyHttpRequestsRouter from './routers/proxyHttpRequestsRouter.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -19,193 +16,48 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 };
-
 app.use(cors(corsOptions));
 
-// ==================
+// ==========================================
 // WEBHOOK CLERK
-// ==================
+// ==========================================
+app.use(webHookRouter);
 
-const WEBHOOK_SECRET_SIGNING_KEY = process.env.WEBHOOK_SECRET_SIGNING_KEY;
-
-app.post('/api/v1/users/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
-    if (!WEBHOOK_SECRET_SIGNING_KEY) {
-        res.status(500).json({ error: 'Error: Please add SIGNING_SECRET from Clerk Dashboard to .env or .env.local' });
-        return;
-    }
-
-    const payload = req.body;
-    const { 'svix-id': webhookId, 'svix-timestamp': webhookTimestamp, 'svix-signature': webhookSignature } = req.headers;
-
-    if (!webhookId || !webhookTimestamp || !webhookSignature) {
-        res.status(400).json({ error: 'Error: Missing required headers' });
-        return;
-    }
-
-    const wh = new Webhook(WEBHOOK_SECRET_SIGNING_KEY);
-    let event: WebhookEvent;
-    try {
-        event = wh.verify(payload, {
-            'webhook-id': webhookId as string,
-            'webhook-timestamp': webhookTimestamp as string,
-            'webhook-signature': webhookSignature as string,
-        }) as WebhookEvent;
-        console.log(Date.now, "THIS IS IT", event);
-
-        await publishWebhookUserEvent(event);
-    } catch (err) {
-        console.log("ERRRIR", err);
-        res.status(400).json({});
-        return;
-    }
-
-    res.status(200).json({ message: 'Webhook received' });
-});
-
+// ==========================================
+// Enabling req.body serialization and clerk
+// ==========================================
 app.use(express.json());
 app.use(clerkMiddleware());
 
-// ============================
+// ==========================================
 // Config metrics to Prometheus
-// ============================
-app.use(requestCounterMiddleware); // Use the request counter middleware
-app.use(responseLengthMiddleware); // Use the response length middleware
-app.use(requestDurationMiddleware); // Use the request duration middleware
+// ==========================================
+app.use(requestCounterMiddleware);
+app.use(responseLengthMiddleware);
+app.use(requestDurationMiddleware);
 
-// ============================
+
+// ==========================================
 // METRICS FOR PROMETHEUS
-// ============================
+// ==========================================
 app.get('/metrics', async (req, res) => {
     res.set('Content-Type', promClient.register.contentType);
     res.end(await promClient.register.metrics());
 });
 
-// Ensure app is accessible and running
+// ==========================================
+// Healt-check - ensuring app is available
+// ==========================================
 app.get('/health', (req, res) => {
     res.send({ data: 'OK' });
     return;
 });
 
-const SERVICES = {
-    BASKETS: 'http://baskets-service:3002',
-    PRODUCTS: 'http://products-service:3004',
-    USERS: 'http://users-service:3005'
-};
+// ==========================================
+// Enabling the http-proxy-middleware logic
+// ==========================================
+app.use(proxyHttpRequestsRouter);
 
-interface CustomIncomingMessage extends IncomingMessage {
-    authContext?: {
-        userId?: string;
-        userRole?: string;
-    };
-}
-
-// Create proxy middlewares upfront instead of per-request
-const createServiceProxy = (target: string) => {
-    return createProxyMiddleware({
-        target,
-        changeOrigin: true,
-        on: {
-            proxyReq: (proxyReq, req: CustomIncomingMessage, res) => {
-                const auth = req.authContext || {};  // Set in main middleware
-                if (auth.userId) {
-                    proxyReq.setHeader('x-user-id', auth.userId);
-                }
-                if (auth.userRole) {
-                    proxyReq.setHeader('x-user-role', auth.userRole);
-                }
-                fixRequestBody(proxyReq, req);
-            },
-            error: (err, req, res: Response) => {
-                console.error('Proxy error:', err);
-                res.status(502).json({ error: 'Bad Gateway' });
-            }
-        }
-    });
-};
-
-// Create proxies once during initialization
-const serviceProxies = {
-    baskets: createServiceProxy(SERVICES.BASKETS),
-    products: createServiceProxy(SERVICES.PRODUCTS),
-    users: createServiceProxy(SERVICES.USERS)
-};
-
-interface CustomRequest extends Request {
-    authContext?: {
-        userId?: string;
-        userRole?: string;
-    };
-}
-
-app.use(async (req: CustomRequest, res, next) => {
-    try {
-        console.log("Request Method:", req.method);
-        console.log("Request Path:", req.path);
-
-        // Determine target service base-url
-        let proxy;
-        if (req.path.startsWith('/baskets')) proxy = serviceProxies.baskets;
-        if (req.path.startsWith('/products')) proxy = serviceProxies.products;
-        if (req.path.startsWith('/users')) proxy = serviceProxies.users;
-
-        // If Prom metrics gets requested parse the request furhter on
-        console.log("REQ PATH", req.path);
-        if (req.path === "/metrics") {
-            next();
-            return; // Important with this return since this middleware has to be quited
-        }
-
-        if (!proxy) {
-            res.status(404).send('Not Found');
-            return;
-        }
-
-        // Authorization logic
-        if (req.path.split("/")[2] === "auth") {
-            const authResult = await authorize(req);
-            req.authContext = {
-                userId: authResult.userId,
-                userRole: authResult.userRole
-            };
-        }
-
-        proxy(req, res, next);
-
-    } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-async function authorize(req) {
-    try {
-        const { userId } = getAuth(req);
-
-        if (userId) {
-            const userRoleRes = await fetch(SERVICES.USERS + "/internal/users/api/v1/role", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userId })
-            });
-
-            if (userRoleRes.ok) {
-                const userRole = await userRoleRes.json();
-                return { userId, userRole: userRole.role };
-            }
-        }
-    } catch (e) {
-        console.log("Error with AUTH CHECK", e);
-    }
-    return { userId: undefined, userRole: 'USER' };
-}
-
-
-// THis is just for testing that server is up and accessible
-app.get("/", (req, res) => {
-    res.status(200).send({ data: "OK" });
-})
 
 connectToRabbitMQ();
 app.listen(PORT, () => console.log(`Express server instantiated PORT ${PORT}`));
