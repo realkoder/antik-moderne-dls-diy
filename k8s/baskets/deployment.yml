@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: baskets-service
-        image: antik-moderne-baskets-service:latest
+        # image: antik-moderne-baskets-service:latest
+        image: ghcr.io/realkoder/antik-moderne-diy-baskets-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3002
