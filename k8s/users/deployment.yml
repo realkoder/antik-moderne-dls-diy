@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: users-service
-        image: antik-moderne-users-service:latest
+        # image: antik-moderne-users-service:latest
+        image: ghcr.io/realkoder/antik-moderne-diy-users-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3005

@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: products-service
-        image: antik-moderne-products-service:latest
+        # image: antik-moderne-products-service:latest
+        image: ghcr.io/realkoder/antik-moderne-diy-products-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3004
