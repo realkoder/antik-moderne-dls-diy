@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: emails-service
-        image: antik-moderne-emails-service:latest
+        # image: antik-moderne-emails-service:latest
+        image: ghcr.io/realkoder/antik-moderne-diy-emails-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3003

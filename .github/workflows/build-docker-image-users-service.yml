@@ -1,0 +1,39 @@
+name: Build and Push Docker Images users-service
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/users/**'
+      - '.github/workflows/build-docker-image-users-service.yml'
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_USERS: realkoder/antik-moderne-diy-users-service
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build and push auth-gatekeeper docker image
+      - name: Build and push users-service Docker image
+        run: |
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_USERS }}:latest ./backend/users
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_USERS }}:latest
