@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
       - name: frontend-app
-        # image: ghcr.io/realkoder/antik-moderne-frontend-app:latest
-        image: antik-moderne-frontend-app:latest
+        image: ghcr.io/realkoder/antik-moderne-diy-frontend-app:latest
+        # image: antik-moderne-frontend-app:latest // localbased docker image
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000

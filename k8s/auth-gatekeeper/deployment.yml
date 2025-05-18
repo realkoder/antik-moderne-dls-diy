@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: auth-gatekeeper-service
-          image: antik-moderne-auth-gatekeeper-service:latest
+          # image: antik-moderne-auth-gatekeeper-service:latest # Used for localbased image
+          image: ghcr.io/realkoder/antik-moderne-diy-auth-gatekeeper:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3001

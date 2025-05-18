@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
       - name: postgresdb
-        # image: ghcr.io/realkoder/antik-moderne-postgres:latest
-        image: antik-moderne-postgresdb:latest
+        image: ghcr.io/realkoder/antik-moderne-diy-postgresdb:latest
+        # image: antik-moderne-postgresdb:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5432
