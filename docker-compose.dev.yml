@@ -59,7 +59,8 @@ services:
     container_name: 'rabbitmq'
     ports:
       - 5672:5672
-      - 15672:15672
+      - 15672:15672 # GUI and management PORT
+      - 15692:15692 # Port for exposing metrics to Prometheus
     environment:
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
@@ -68,6 +69,7 @@ services:
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
     networks:
         - microservices
+    command: rabbitmq-server -rabbitmq_management listener [{port,15672}] -rabbitmq_prometheus [{port,15692}]
 
   frontend-app:
     build:
@@ -80,7 +82,6 @@ services:
       - /app/node_modules
     ports:
       - 3000:5173
-      # - 8002:8002
     networks:
         - microservices
 

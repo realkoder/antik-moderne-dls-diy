@@ -197,6 +197,7 @@ Prometheus will also have extended scrape configs since it's supposed to scrape 
 
 **Prometheus**
 _Ensure to have created the `k8s/prometheus/values.yml` before installing with Helm_:
+
 ```bash
 helm install prometheus prometheus-community/prometheus -f k8s/prometheus/serviceMonitor.yml -n monitoring
 
@@ -232,7 +233,8 @@ Get the Prometheus server URL by running these commands in the same shell:
 ```
 
 **GRAFANA**
-_Ensure to have created the `k8s/grafana/values.yml` before installing with Helm:
+\_Ensure to have created the `k8s/grafana/values.yml` before installing with Helm:
+
 ```bash
 helm install prometheus prometheus-community/prometheus -f k8s/prometheus/values.yml -n monitoring
 
@@ -265,8 +267,9 @@ NOTES:
 ```
 
 If changes are made to `values.yml` could be for _grafana_ then run following to upgrade with _helm_:
+
 ```bash
-helm upgrade -n monitoring grafana grafana/grafana -f k8s/grafana/values.yml 
+helm upgrade -n monitoring grafana grafana/grafana -f k8s/grafana/values.yml
 ```
 
 ---
@@ -279,13 +282,11 @@ Kubernetes cluster monitoring: Use dashboard **ID 3119**
 
 _Node.js and Express Metrics_ monitoring: Use dashboard **ID 14565**
 
-
 **Verification Steps:**
 
 Check Prometheus targets: http://localhost:30090/targets
 
 _Grafana_ should show both _Kubernetes_ and Node.js metrics
-
 
 **Remember to:**
 
@@ -297,7 +298,7 @@ Add persistent storage for production use
 
 Secure endpoints with authentication in production environments
 
-###  Infrastructure Monitoring
+### Infrastructure Monitoring
 
 The _kube-prometheus-stack_ comes pre-configured for infrastructure monitoring through two main exporters:
 
@@ -306,10 +307,11 @@ The _kube-prometheus-stack_ comes pre-configured for infrastructure monitoring t
 - **Kube State Metrics**: Collects metrics about Kubernetes objects' health, configuration, and availability
 
 If not configuring the password use following to get the admin password:
+
 ```bash
 # For Grafana use this to retrieve password
 kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode
-```    
+```
 
 **Docs for exposing metrics to Prometheus from Node.js Express app** https://kubernetestraining.io/blog/node-js-prometheus-monitoring-express-prometheus-middleware
 
@@ -323,6 +325,20 @@ Bonus commands:
 ```
 
 ---
+
+### RabbitMQ exposing metrics to Prometheus
+
+These links where used for making _RabbitMQ_ exposing data to be fetched by _Prometheus_:
+
+[RabbitMQ: Monitoring with Prometheus and Grafana](https://www.rabbitmq.com/docs/prometheus)
+
+[RabbitMQ with Prometheus repo](https://github.com/rabbitmq/rabbitmq-server/tree/main/deps/rabbitmq_prometheus)
+
+[RabbitMQ / Queue id: 17308](https://grafana.com/grafana/dashboards/17308-rabbitmq-queue/)
+
+[RabbitMQ-Overview id: 10991](https://grafana.com/grafana/dashboards/10991-rabbitmq-overview/)
+
+[RabbitMQ Monitoring id: 4279](https://grafana.com/grafana/dashboards/4279-rabbitmq-monitoring/)
 
 ### Self Hosting ReactRouter-v7 applications
 
