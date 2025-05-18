@@ -1,0 +1,49 @@
+name: Build and Push Docker Images - FrontendApp
+
+on:
+  push:
+    branches: [main]
+    # paths:
+    #     - 'frontend/**'
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_FRONTEND_APP: realkoder/antik-moderne-frontend-app
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+
+      # Build and push Frontend image
+      - name: Build and push Frontend Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND_APP }}:latest
+          build-args: |
+            VITE_ENV=${{ secrets.VITE_ENV }}
+            VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
+            VITE_CLERK_SECRET_KEY=${{ secrets.VITE_CLERK_SECRET_KEY }}
+            VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}
+            VITE_BASE_URL_SSR=${{ secrets.VITE_BASE_URL_SSR }}
+          platforms: linux/arm64,linux/amd64
