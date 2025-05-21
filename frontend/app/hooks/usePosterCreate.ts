@@ -19,6 +19,7 @@ export const usePosterCreate = (changeTabTo: (tab: string) => void) => {
     const [posterCreate, setPosterCreate] = useState<PosterCreate>(defaultPoster);
     const [format, setFormat] = useState<Format | null>();
     const [price, setPrice] = useState("1000");
+    const [amount, setAmount] = useState("1");
     const [isCreating, setIsCreating] = useState(false);
 
     const filteredFormats = formats.filter((format) => !posterCreate.formatPrices.find((posterFormat) => posterFormat.format === format));
@@ -40,6 +41,9 @@ export const usePosterCreate = (changeTabTo: (tab: string) => void) => {
         },
         onPriceChange: (price: string) => {
             setPrice(price);
+        },
+        onAmountChange: (amount: string) => {
+            setAmount(amount);
         }
     }
 
@@ -68,6 +72,8 @@ export const usePosterCreate = (changeTabTo: (tab: string) => void) => {
         },
         onAddFormatPrice: () => {
             const priceNumber = Number(price);
+            const amountNumber = Number(amount) > 0 ? Number(amount) : 1;
+
             if (!priceNumber) {
                 triggerToaster("The price must be number!")
                 setPrice("1000");
@@ -76,7 +82,7 @@ export const usePosterCreate = (changeTabTo: (tab: string) => void) => {
 
             if (!format) return;
 
-            setPosterCreate((cur) => ({ ...cur, formatPrices: [...cur.formatPrices, { format: format, price: priceNumber }] }));
+            setPosterCreate((cur) => ({ ...cur, formatPrices: [...cur.formatPrices, { format: format, price: priceNumber, amount: amountNumber }] }));
             setPrice("1000");
             setFormat(null);
         }
@@ -102,5 +108,5 @@ export const usePosterCreate = (changeTabTo: (tab: string) => void) => {
         return true;
     }
 
-    return { posterCreate, isCreating, onChangeActions, price, handleClickActions, filteredFormats };
+    return { posterCreate, isCreating, onChangeActions, price, amount, handleClickActions, filteredFormats };
 }

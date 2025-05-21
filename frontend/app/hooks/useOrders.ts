@@ -10,6 +10,7 @@ const useOrders = () => {
     const { userId } = useAuth();
     const [basket, setBasket] = useAtom(basketAtom);
 
+    
 
     const createOrder = async () => {
         if (!basket?.basketItems || basket.basketItems.length < 1 || !userId) return;
@@ -27,8 +28,8 @@ const useOrders = () => {
             { method: "POST", data: { orderCreate } }
         );
 
-        if (response && response.message) {
-            toast.info("The order is processed.")
+        if (response && response.message && response.message === "PENDING") {
+            toast.info("Your order is pending");
         }
     }
 

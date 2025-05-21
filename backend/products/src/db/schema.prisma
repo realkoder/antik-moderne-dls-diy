@@ -74,6 +74,7 @@ model FormatPriceDescription {
   formatPriceId       Int               @map("format_price_id")
   price               Int
   format              Format
+  amount              Int               @default(1)
   posterDescriptionId Int               @map("poster_id")
   createdAt           DateTime          @default(now()) @map("created_at")
   posterDescription   PosterDescription @relation(fields: [posterDescriptionId], references: [id])

@@ -108,8 +108,7 @@ router.get('/orders/auth/api/v1/orders/:orderId', async (req, res) => {
 router.post('/orders/auth/api/v1/orders', async (req, res) => {
     const userId = req.headers['x-user-id'] as string;
     const { orderCreate } = req.body;
-
-    console.log("LOOOOK", userId);
+    
     try {
         if (!userId) {
             res.status(403).json({ message: "Missing user ID" });

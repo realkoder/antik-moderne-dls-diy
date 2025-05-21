@@ -1,6 +1,7 @@
 import { OrderCreate, OrderDto, OrderItemDto, OrderStatus, PosterDto } from "@realkoder/antik-moderne-shared-types";
 import { prismaOrders } from "../db/database.js";
 import { Order, OrderItem } from "@prisma/client";
+import { publishPendingOrderEvent } from "../rabbitmqMessaging/config.js";
 
 export interface Response {
     success: boolean;
@@ -77,8 +78,8 @@ class OrdersService {
                 throw Error("Order or orderItems format is invalid");
             }
 
-            await prismaOrders.$transaction(async (prisma) => {
-                const persistedOrder = await prisma.order.create({
+            const persistedOrder = await prismaOrders.$transaction(async (prisma) => {
+                return await prisma.order.create({
                     data: {
                         userId: userId,
                         status: "PENDING",
@@ -91,15 +92,16 @@ class OrdersService {
                         },
                     },
                 });
-
-                if (persistedOrder) {
-                    // TODO EMIT rabbitmq order created here
-                }
             });
+
+            if (persistedOrder) {
+                const createdOrderDto = await this.findOne(persistedOrder.id);
+                publishPendingOrderEvent(createdOrderDto);
+            }
 
             return {
                 success: true,
-                message: "Order created",
+                message: "PENDING",
             };
         } catch (error) {
             console.error("Order creation failed: ", error);

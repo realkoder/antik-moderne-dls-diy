@@ -12,7 +12,7 @@ interface TabCreatePosterProps {
 }
 
 export const TabCreatePoster = ({ changeTabTo }: TabCreatePosterProps) => {
-  const { posterCreate, isCreating, onChangeActions, price, handleClickActions, filteredFormats } = usePosterCreate(changeTabTo);
+  const { posterCreate, isCreating, onChangeActions, price, amount, handleClickActions, filteredFormats } = usePosterCreate(changeTabTo);
   return (
     <Card>
       <CardHeader>
@@ -82,6 +82,12 @@ export const TabCreatePoster = ({ changeTabTo }: TabCreatePosterProps) => {
             <Input value={price} onChange={(event) => onChangeActions.onPriceChange(event.target.value)} id="price" type="text" />
           </div>
         </div>
+
+        <div>
+            <Label htmlFor="amount">Stock amount</Label>
+            <Input value={amount} onChange={(event) => onChangeActions.onAmountChange(event.target.value)} id="amount" type="text" />
+          </div>
+
         <Button onClick={() => handleClickActions.onAddFormatPrice()}>Add the format with price to poster</Button>
         <Divider />
       </CardContent>
