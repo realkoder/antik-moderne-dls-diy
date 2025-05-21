@@ -2,58 +2,37 @@ import { useAtom } from "jotai";
 import { basketAtom } from "~/atoms/basketAtom";
 import { useAuth } from "@clerk/react-router";
 import { useFetch } from "~/lib/api-client";
-import type { BasketDto, BasketItemCreate, OrderCreate, OrderItemCreate } from "@realkoder/antik-moderne-shared-types";
+import type { OrderCreate, OrderItemCreate } from "@realkoder/antik-moderne-shared-types";
+import { toast } from "sonner";
 
-const useBasket = () => {
-    const { fetchData } = useFetch<{ basket: BasketDto }>();
+const useOrders = () => {
+    const { fetchData: postOrder } = useFetch<{ message: string }>();
     const { userId } = useAuth();
     const [basket, setBasket] = useAtom(basketAtom);
 
 
-    const createOrder = async (basketItemCreate: BasketItemCreate) => {
+    const createOrder = async () => {
         if (!basket?.basketItems || basket.basketItems.length < 1 || !userId) return;
-        const orderCreate: OrderCreate = basket.basketItems.map(basketItem => {
-            const orderItems: OrderItemCreate[] = {
-                posterId: basketItem.poster.id;
-                formatPriceId?: basketItem.;
-                quantity: basketItem.quantity;
-            }
-            return {
-                orderItems
-            }
-        })
-        const response = await fetchData(
+
+        const orderItems: OrderItemCreate[] = basket.basketItems.map(basketItem => ({
+            posterId: basketItem.poster.id,
+            formatPriceId: basketItem.formatPrice.id,
+            quantity: basketItem.quantity
+        } as OrderItemCreate));
+
+        const orderCreate: OrderCreate = { orderItems }
+
+        const response = await postOrder(
             "/orders/auth/api/v1/orders",
-            { method: "POST", data: { guid, basketItemCreate } }
+            { method: "POST", data: { orderCreate } }
         );
 
-        if (response && response.basket) {
-            setBasket(response.basket);
+        if (response && response.message) {
+            toast.info("The order is processed.")
         }
     }
 
-    const removeItemFromBasket = async (basketItemId: number) => {
-        // let response;
-        // if (userId) {
-        //     if (!authRequestClient) return;
-        //     response = await authRequestClient.basket.removeItemFromBasket({ basketItemId: basketItemId });
-        // } else {
-        //     const guid = localStorage.getItem("basketguid");
-        //     if (guid) {
-        //         response = await getRequestClient(undefined, false).basket.removeItemFromBasket({ guid, basketItemId: basketItemId });
-        //     }
-        // }
-        const response = await fetchData(
-            "/baskets/auth/api/v1/baskets/remove-item",
-            { method: "DELETE", data: { guid, basketItemId: basketItemId } }
-        );
-
-        if (response && response.basket) {
-            setBasket(response.basket);
-        }
-    }
-
-    return { addItemToBasket, removeItemFromBasket };
+    return { createOrder };
 }
 
-export default useBasket;
+export default useOrders;

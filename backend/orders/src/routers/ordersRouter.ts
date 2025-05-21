@@ -110,18 +110,19 @@ router.post('/orders/auth/api/v1/orders', async (req, res) => {
     const { orderCreate } = req.body;
 
     console.log("LOOOOK", userId);
-    res.json({ data: "Heck yir" });
     try {
-        //     if (!userId) {
-        //         res.status(403).json({ message: "Missing user ID" });
-        //         return;
-        //     }
-        //     const response = await OrdersService.create(userId, orderCreate);
-        //     if (response.success) {
-        //         res.status(201).json({ message: response.message });
-        //     } else {
-        //         res.status(400).json({ message: response.message });
-        //     }
+        if (!userId) {
+            res.status(403).json({ message: "Missing user ID" });
+            return;
+        }
+
+        const response = await OrdersService.create(userId, orderCreate);
+
+        if (response.success) {
+            res.status(201).json({ message: response.message });
+        } else {
+            res.status(400).json({ message: response.message });
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: error.message || 'Internal Server Error' });

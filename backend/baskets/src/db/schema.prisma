@@ -34,7 +34,7 @@ model BasketItem {
   posterId      Int      @map("poster_id")
   basketId      Int      @map("basket_id")
   quantity      Int      @default(1)
-  formatPriceId Int      @map("format_price_id")
+  formatPriceId Int      @map("format_price_id") @default(0)
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
   basket        Basket   @relation(fields: [basketId], references: [id])

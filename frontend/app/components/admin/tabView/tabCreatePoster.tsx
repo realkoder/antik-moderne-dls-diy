@@ -4,7 +4,6 @@ import { Label } from "@radix-ui/react-label";
 import { Button } from "~/components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { Divider } from "~/components/Divider";
-import { Toaster } from "sonner";
 import { usePosterCreate } from "~/hooks/usePosterCreate";
 import type { Format } from "@realkoder/antik-moderne-shared-types";
 
@@ -87,7 +86,6 @@ export const TabCreatePoster = ({ changeTabTo }: TabCreatePosterProps) => {
         <Divider />
       </CardContent>
       <CardFooter className="w-full flex flex-col items-center justify-center">
-        <Toaster />
         {posterCreate.formatPrices.map((formatPrice) => (
           <Card key={formatPrice.format} className="w-4/5 flex items-center justify-between gap-x-2">
             <div className="flex flex-col m-1 text-left">

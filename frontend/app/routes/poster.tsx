@@ -35,7 +35,7 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
   const { poster } = loaderData;
   const { addItemToBasket } = useBasket();
   const [quantities, setQuantities] = useState<
-    { format: Format; quantity: number }[]
+    { formatPriceId: number; format: Format; quantity: number }[]
   >([]);
   const isPostersAdded = useMemo(() => {
     return quantities.some((quant) => quant.quantity > 0);
@@ -43,8 +43,9 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
 
   useEffect(() => {
     setQuantities(
-      poster.formatPrices.map((curPoster) => ({
-        format: curPoster.format,
+      poster.formatPrices.map((curFormatPrice) => ({
+        formatPriceId: curFormatPrice.id,
+        format: curFormatPrice.format,
         quantity: 0,
       }))
     );
@@ -75,6 +76,7 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
       if (formatQuant.quantity !== 0) {
         addItemToBasket({
           posterId: poster.id,
+          formatPriceId: formatQuant.formatPriceId,
           quantity: formatQuant.quantity,
         });
       }
@@ -112,7 +114,11 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
               <p className="min-w-24">{formatPrice.format}</p>
               <button
                 onClick={() =>
-                  addItemToBasket({ posterId: poster.id, quantity: 1 })
+                  addItemToBasket({
+                    posterId: poster.id,
+                    formatPriceId: formatPrice.id,
+                    quantity: 1,
+                  })
                 }
                 className="flex items-center justify-center border border-black p-1 hover:cursor-pointer hover:scale-105 m-2 relative group h-8 w-28"
               >

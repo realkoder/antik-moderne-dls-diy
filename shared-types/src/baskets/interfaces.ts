@@ -1,4 +1,4 @@
-import { PosterDto } from "../products/interfaces";
+import { FormatPriceDto, PosterDto } from "../products/interfaces";
 
 export interface BasketDto {
     id: number;
@@ -12,6 +12,7 @@ export interface BasketDto {
 export interface BasketItemDto {
     id: number;
     poster: PosterDto;
+    formatPrice: FormatPriceDto
     quantity: number;
     createdAt: Date;
     updatedAt: Date;
@@ -19,6 +20,7 @@ export interface BasketItemDto {
 
 export interface BasketItemCreate {
     posterId: number;
+    formatPriceId: number;
     quantity: number;
 }
 

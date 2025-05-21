@@ -2,9 +2,11 @@ import { useAtomValue } from "jotai";
 
 import { basketAtom } from "~/atoms/basketAtom";
 import { BasketItem } from "./BasketItem";
+import useOrders from "~/hooks/useOrders";
 
 const Basket = () => {
   const basket = useAtomValue(basketAtom);
+  const { createOrder } = useOrders();
 
   return (
     <div className="flex flex-col items-start justify-start">
@@ -23,8 +25,9 @@ const Basket = () => {
         <button
           hidden={basket?.basketItems && basket?.basketItems.length < 1}
           className="border border-black  py-1 px-1.5 font-semibold drop-shadow-mg hover:cursor-pointer hover:scale-105 mt-2"
+          onClick={() => createOrder()}
         >
-          Checkout
+          Checkout - THIS FOR NOW JUST PROCESS ORDER!
         </button>
       </div>
     </div>
