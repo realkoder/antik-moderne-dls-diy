@@ -369,18 +369,6 @@ The docker image is making use of the npm scripts `build & start` where the star
   }
 ```
 
-### Self Hosting Encore applications
-
-With **Encore** applications, a lot happens behind the scenes, which means many features come out of the box, such as pub/sub messaging, database setup with migration logic, testing automation, and gatekeeper servicing. To run in production and ensure everything operates smoothly, your setup may depend on **Encore**, which can be costly. Therefore, they provide the option to self-host. This is accomplished by using the command `encore build docker`, which allows you to either package the entire **Encore** application into a single Docker image or dockerize each specific service individually.
-To build the Encore application with Docker, it requires an **infra-config.json** file to specify dependencies such as databases, environment variables, and pub/sub configurations.
-
-```bash
-# Command to build whole encore app in one docker image
-encore build docker --base=node:20-bullseye --config infra-config.json --arch=arm64 antikmoderne:v1
-```
-
-![raised issue pubsub pull req closed](images/raised-issue-pubsub-pull-req-closed.png)
-
 <br>
 
 ---
