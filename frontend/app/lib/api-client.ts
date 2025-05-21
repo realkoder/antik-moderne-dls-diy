@@ -14,11 +14,13 @@ const api = axios.create({
     withCredentials: true
 });
 
+// Implemented to easy intercept request if needed
 api.interceptors.request.use(
     (config) => config,
     (error) => Promise.reject(error)
 );
 
+// Same as above and also only returning the response.data
 api.interceptors.response.use(
     (response) => response.data,
     (error) => Promise.reject(error.response?.data || error.message)
