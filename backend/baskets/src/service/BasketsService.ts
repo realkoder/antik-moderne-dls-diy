@@ -123,6 +123,7 @@ class BasketsService {
                     poster,
                 };
             }));
+            
             return {
                 ...basket,
                 basketItems: basketItemsWithPosters,

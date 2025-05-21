@@ -1,6 +1,6 @@
 {
   "name": "@realkoder/antik-moderne-shared-types",
-  "version": "1.0.8",
+  "version": "1.0.11",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "publishConfig": {

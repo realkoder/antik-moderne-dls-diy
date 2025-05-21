@@ -57,7 +57,7 @@ app.get('/metrics', async (req, res) => {
 // Healt-check - ensuring app is available
 // ==========================================
 app.get('/health', (req, res) => {
-    res.send({ data: 'OK' });
+    res.json({ data: 'OK' });
     return;
 });
 

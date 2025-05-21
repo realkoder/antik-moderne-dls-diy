@@ -22,6 +22,11 @@ scrape_configs:
     static_configs:
       - targets: ['users-service:3005']
 
+  - job_name: 'orders-service'
+    metrics_path: '/orders/metrics'
+    static_configs:
+      - targets: ['orders-service:3006']
+
   - job_name: 'grafana'
     metrics_path: '/metrics'
     static_configs:

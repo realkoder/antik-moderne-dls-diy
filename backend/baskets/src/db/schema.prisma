@@ -17,26 +17,27 @@ datasource db {
 }
 
 model Basket {
-    id          Int          @id @default(autoincrement())
-    userId      String?      @map("user_id")
-    guid        String?
-    createdAt   DateTime     @default(now()) @map("created_at")
-    updatedAt   DateTime     @updatedAt @map("updated_at")
-    basketItems BasketItem[]
+  id          Int          @id @default(autoincrement())
+  userId      String?      @map("user_id")
+  guid        String?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  basketItems BasketItem[]
 
-    @@index([userId])
-    @@index([guid])
-    @@map("baskets")
+  @@index([userId])
+  @@index([guid])
+  @@map("baskets")
 }
 
 model BasketItem {
-    id        Int      @id @default(autoincrement())
-    posterId  Int      @map("poster_id")
-    basketId  Int      @map("basket_id")
-    quantity  Int      @default(1)
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-    basket    Basket   @relation(fields: [basketId], references: [id])
+  id            Int      @id @default(autoincrement())
+  posterId      Int      @map("poster_id")
+  basketId      Int      @map("basket_id")
+  quantity      Int      @default(1)
+  formatPriceId Int      @map("format_price_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  basket        Basket   @relation(fields: [basketId], references: [id])
 
-    @@map("basket_items")
+  @@map("basket_items")
 }

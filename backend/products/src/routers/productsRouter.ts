@@ -14,7 +14,7 @@ const router = Router();
  *         description: Returns a string
  */
 router.get('/products/api/v1/health', (req, res) => {
-    res.send({ data: 'OK' });
+    res.json({ data: 'OK' });
 });
 
 /**
