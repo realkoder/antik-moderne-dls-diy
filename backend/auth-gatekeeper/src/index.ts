@@ -3,7 +3,7 @@ import cors from 'cors';
 import { clerkMiddleware } from '@clerk/express';
 import promClient from 'prom-client';
 import { connectToRabbitMQ } from './rabbitmqMessaging/config.js';
-import { requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types";
+import { logResponseMiddleware, requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types";
 import webHookRouter from './routers/webhookRouter.js';
 import proxyHttpRequestsRouter from './routers/proxyHttpRequestsRouter.js';
 
@@ -22,6 +22,14 @@ app.use(cors(corsOptions));
 // WEBHOOK CLERK
 // ==========================================
 app.use(webHookRouter);
+
+// ==============================
+// Reponse logs for winston-loki
+// ==============================
+app.use((req, res, next) => {
+    logResponseMiddleware("auth-gatekeeper-service", req, res, next);
+});
+
 
 // ==========================================
 // Enabling req.body serialization and clerk

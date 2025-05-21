@@ -3,7 +3,7 @@ import promClient from "prom-client";
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import basketsRouter from "./routers/basketsRouter.js";
-import { requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types";
+import { logResponseMiddleware, requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types";
 
 const app = express();
 const PORT = process.env.PORT ?? 3002;
@@ -16,6 +16,13 @@ app.use(express.json());
 app.use(requestCounterMiddleware); // Use the request counter middleware
 app.use(responseLengthMiddleware); // Use the response length middleware
 app.use(requestDurationMiddleware); // Use the request duration middleware
+
+// ==============================
+// Reponse logs for winston-loki
+// ==============================
+app.use((req, res, next) => {
+    logResponseMiddleware("baskets-service", req, res, next);
+});
 
 // ============================
 // GET METRICS FOR PROMETHEUS

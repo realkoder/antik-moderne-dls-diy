@@ -11,6 +11,10 @@ networks:
     driver: bridge
 
 services:
+
+# ==============================
+# POSTGRES DB with migrations
+# ==============================
   postgresdb:
     container_name: postgresdb
     build:
@@ -54,6 +58,9 @@ services:
     networks:
       - microservices
 
+# ==============================
+# RABBITMQ
+# ==============================
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
@@ -71,6 +78,9 @@ services:
         - microservices
     command: rabbitmq-server -rabbitmq_management listener [{port,15672}] -rabbitmq_prometheus [{port,15692}]
 
+# ==============================
+# Frontend RRv7 APP
+# ==============================
   frontend-app:
     build:
       context: ./frontend
@@ -85,6 +95,9 @@ services:
     networks:
         - microservices
 
+# ==============================
+# Backend services
+# ==============================
   auth-gatekeeper-service:
     restart: always
     container_name: auth-gatekeeper-service
@@ -186,13 +199,25 @@ services:
     networks:
         - microservices
 
+# ===========================================
+# Monitoring with Prometheus, Loki and Alloy
+# ===========================================
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - '3100:3100'
+    volumes:
+      - loki_data:/data
+    networks:
+      - microservices
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheusValues.dev.yml:/etc/prometheus/prometheus.yml
+      - ./docker-utils/prometheusValues.dev.yml:/etc/prometheus/prometheus.yml
     networks:
       - microservices
 
@@ -206,6 +231,9 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana_data:/var/lib/grafana
+    depends_on:
+      - loki
+      - prometheus
     networks:
       - microservices
 
@@ -213,5 +241,6 @@ services:
 volumes:
   postgres_data: {}
   grafana_data: {} # Want to save the dashboard and other configs for Grafana
+  loki_data: {}
   
   

@@ -324,6 +324,12 @@ Bonus commands:
      -f k8s/prometheus/values.yml
 ```
 
+### Loki with Grafana and winston-loki
+
+[Configure Grafana Loki with a nodejs app](https://grafana.com/blog/2022/07/07/how-to-configure-grafana-loki-with-a-node.js-e-commerce-app/)
+
+Check out _shared-types_ providing the `logResponseMiddleware()` for initializing the singleton logger and exposing logs to _Loki_
+
 ---
 
 ### RabbitMQ exposing metrics to Prometheus
@@ -339,6 +345,8 @@ These links where used for making _RabbitMQ_ exposing data to be fetched by _Pro
 [RabbitMQ-Overview id: 10991](https://grafana.com/grafana/dashboards/10991-rabbitmq-overview/)
 
 [RabbitMQ Monitoring id: 4279](https://grafana.com/grafana/dashboards/4279-rabbitmq-monitoring/)
+
+---
 
 ### Self Hosting ReactRouter-v7 applications
 

@@ -3,7 +3,7 @@ import promClient from 'prom-client';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import productsRouter from './routers/productsRouter.js';
-import { requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types";
+import { logResponseMiddleware, requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types";
 import { connectToRabbitMQ } from "./rabbitmqMessaging/config.js";
 
 const app = express();
@@ -17,6 +17,13 @@ app.use(express.json());
 app.use(requestCounterMiddleware); // Use the request counter middleware
 app.use(responseLengthMiddleware); // Use the response length middleware
 app.use(requestDurationMiddleware); // Use the request duration middleware
+
+// ==============================
+// Reponse logs for winston-loki
+// ==============================
+app.use((req, res, next) => {
+    logResponseMiddleware("products-service", req, res, next);
+});
 
 // ============================
 // GET METRICS FOR PROMETHEUS
