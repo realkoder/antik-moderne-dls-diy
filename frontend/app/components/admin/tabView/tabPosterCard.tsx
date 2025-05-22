@@ -67,7 +67,7 @@ export const TabPosterCard = ({ poster }: TabProductCardProps) => {
           <p>Artist:</p>
           <p className="ml-1 italic">{`${poster.artistFullName}`}</p>
         </div>
-        <p>{`${poster.formatPrices[0].price.toFixed(2)}.-`}</p>
+        <p>kr. {`${poster.formatPrices[0].price.toFixed(2)},-`}</p>
       </CardFooter>
     </Card>
   );

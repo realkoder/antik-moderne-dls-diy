@@ -3,12 +3,14 @@ export type Format = "A4" | "30x30 cm" | "30x40 cm" | "50x50" | "50x70 cm" | "70
 export interface FormatPriceDto {
     id: number;
     format: Format;
-    price: number
+    price: number;
+    amount: number;
 }
 
 export interface FormatPriceCreate {
     format: Format;
-    price: number
+    price: number;
+    amount: number;
 }
 
 export interface PosterDto {

@@ -22,9 +22,11 @@ const initializeLogger = (appName: string) => {
             replaceTimestamp: true,
             onConnectionError: (err) => console.error(err)
         }),
-        new transports.Console({
-            format: format.combine(format.simple(), format.colorize())
-        })]
+        // Uncomment to add console outputs
+        // new transports.Console({
+        //     format: format.combine(format.simple(), format.colorize())
+        // })
+    ]
     })
 }
 

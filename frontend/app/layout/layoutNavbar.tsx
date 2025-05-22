@@ -3,7 +3,11 @@ import { useTheme } from "next-themes";
 import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
 import { FaCartShopping } from "react-icons/fa6";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
 
 import { ThemeChanger } from "~/components/ThemeChanger";
 import useUserRole from "~/hooks/useUserRole";
@@ -26,7 +30,11 @@ export default function layoutNavbar() {
   const navLinkClassName = (linkPath: string) =>
     `${
       pathname === linkPath
-        ? `border-black border-b ${theme == undefined || theme == "light" ? "border-neutral-950" : "border-neutral-50"}`
+        ? `border-black border-b ${
+            theme == undefined || theme == "light"
+              ? "border-neutral-950"
+              : "border-neutral-50"
+          }`
         : ""
     }`;
 
@@ -78,7 +86,9 @@ export default function layoutNavbar() {
                 <div>
                   <FaCartShopping size={20} className="text-2xl" />
                   <div className="absolute top-0 -right-1 z-50 bg-red-500 text-white rounded-full w-3.5 h-3.5 flex justify-center items-center">
-                    <span className="text-xs">{basket && basket.basketItems.length}</span>
+                    <span className="text-xs">
+                      {basket && basket.basketItems.length}
+                    </span>
                   </div>
                 </div>
               </PopoverTrigger>
@@ -94,7 +104,14 @@ export default function layoutNavbar() {
       </div>
       <div>
         <footer className="flex flex-col items-center p-4 mt-6">
-          <img className="border border-black grayscale rounded-full" src="/logo.png" width={50} alt="ANTIK MODERNE" />
+          <NavLink to="/">
+            <img
+              className="border border-black grayscale rounded-full"
+              src="/logo.png"
+              width={50}
+              alt="ANTIK MODERNE"
+            />
+          </NavLink>
           <p className="italic mt-3">© 2025 ANTIK MODERNE</p>
         </footer>
       </div>

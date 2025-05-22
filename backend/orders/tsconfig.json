@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "ESNext", // or "ES2020"
+        "esModuleInterop": true,
+        "target": "es2021",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "outDir": "dist",
+    },
+    "lib": [
+        "es2021"
+    ]
+}

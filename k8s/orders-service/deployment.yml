@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders-service
+  template:
+    metadata:
+      labels:
+        app: orders-service
+    spec:
+      containers:
+      - name: orders-service
+        # image: antik-moderne-orders-service:latest
+        image: ghcr.io/realkoder/antik-moderne-diy-orders-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3006
+        # resources:
+        #   limits:
+        #     memory: "512Mi"
+        #     cpu: "500m"
+        #   requests:
+        #     memory: "256Mi"
+        #     cpu: "200m"
+        # livenessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 3002
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 3002
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5

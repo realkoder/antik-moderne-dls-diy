@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { useAtom } from "jotai";
 import { basketAtom } from "~/atoms/basketAtom";
@@ -11,6 +11,12 @@ const useBasket = () => {
     const { userId } = useAuth();
     const [guid, setGuid] = useState<string | null>();
     const [basket, setBasket] = useAtom(basketAtom);
+    const basketTotalPrice = useMemo(() => {
+        const totalPrice = basket?.basketItems.reduce(
+            (total, item) => total + item.formatPrice.price * item.quantity, 0)
+        return totalPrice ? totalPrice : 0;
+    },
+        [basket])
 
     useEffect(() => {
         let localstorageGuid = localStorage.getItem("basketguid")
@@ -78,7 +84,7 @@ const useBasket = () => {
         }
     }
 
-    return { addItemToBasket, removeItemFromBasket };
+    return { addItemToBasket, removeItemFromBasket, basketTotalPrice };
 }
 
 export default useBasket;
