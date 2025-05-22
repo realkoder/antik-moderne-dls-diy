@@ -31,7 +31,7 @@ class OrdersService {
 
             if (!order) return null;
 
-            const posters = await fetchPosters(order);
+            const posters = await fetchPosters([order]);
 
             return {
                 id: order.id,
@@ -138,7 +138,8 @@ class OrdersService {
 // ===========
 // HELPERS
 // ===========
-async function fetchPosters(orders: any) {
+type OrderWithItems = Order & { orderItems: OrderItem[] };
+async function fetchPosters(orders: OrderWithItems[]) {
     const posterIds = orders.map(order => order.orderItems.map(orderItem => orderItem.posterId));
     console.log("posterIDs to be fetched", posterIds);
 

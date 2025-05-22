@@ -42,7 +42,7 @@ export const BasketItem = ({ basketItem }: BasketItemProps) => {
           <span className="text-sm text-gray-700 mr-2">
             Price{" "}
             <span className="font-medium">
-              {selectedFormatPrice?.price} DKK
+              kr. {selectedFormatPrice?.price},-
             </span>
           </span>
           <span className="text-sm text-gray-700">

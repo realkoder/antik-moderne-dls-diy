@@ -5,6 +5,7 @@ export default [
         index("routes/home.tsx"),
         route("about", "routes/about.tsx"),
         route("admin", "routes/admin.tsx"),
+        route("checkout-order", "routes/checkout-order.tsx"),
         route("posters", "routes/posters.tsx"),
         route("sign-in/*", "routes/sign-in.tsx"),
         route("poster/:posterId", "routes/poster.tsx"),

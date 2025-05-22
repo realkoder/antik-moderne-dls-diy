@@ -65,7 +65,7 @@ export const PosterDisplayer = () => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  <p className="italic text-right">{currentFormatPrice.price} dkk,-</p>
+                  <p className="italic text-right">kr. {currentFormatPrice.price},-</p>
                 </div>
               </div>
             </div>

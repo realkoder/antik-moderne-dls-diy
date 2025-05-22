@@ -96,7 +96,7 @@ export const TabCreatePoster = ({ changeTabTo }: TabCreatePosterProps) => {
           <Card key={formatPrice.format} className="w-4/5 flex items-center justify-between gap-x-2">
             <div className="flex flex-col m-1 text-left">
               <p>format: {formatPrice.format}</p>
-              <p>price: {formatPrice.price}</p>
+              <p>price: kr. {formatPrice.price},-</p>
             </div>
             <Button variant={"destructive"} onClick={() => handleClickActions.onRemoveFormatPrice(formatPrice.format)}>
               Remove
