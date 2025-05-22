@@ -1,5 +1,6 @@
 import { MessagingQueues, PosterDto } from "@realkoder/antik-moderne-shared-types";
 import amqp, { Channel, ChannelModel } from "amqplib";
+import PosterService from "../service/PosterService.js";
 
 let connection: ChannelModel;
 let channel: Channel;
@@ -10,6 +11,13 @@ export async function connectToRabbitMQ() {
         channel = await connection.createChannel();
         await channel.assertQueue(MessagingQueues.PRODUCT_ADDED, { durable: false });
         console.log("Connected to RabbitMQ and created channel");
+
+        channel.consume(MessagingQueues.ORDER_PENDING, async (msg) => {
+            const pendingOrder = JSON.parse(msg.content.toString());
+            console.log("pendingOrder received", pendingOrder);
+            PosterService.handlePosterOrder(pendingOrder);
+            channel.ack(msg);
+        });
 
     } catch (err) {
         // TODO Very simple reconnect strategy here - could do weird stuff be aware!

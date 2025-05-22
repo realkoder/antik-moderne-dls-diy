@@ -4,7 +4,6 @@ import { Label } from "@radix-ui/react-label";
 import { Button } from "~/components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { Divider } from "~/components/Divider";
-import { Toaster } from "sonner";
 import { usePosterCreate } from "~/hooks/usePosterCreate";
 import type { Format } from "@realkoder/antik-moderne-shared-types";
 
@@ -13,7 +12,7 @@ interface TabCreatePosterProps {
 }
 
 export const TabCreatePoster = ({ changeTabTo }: TabCreatePosterProps) => {
-  const { posterCreate, isCreating, onChangeActions, price, handleClickActions, filteredFormats } = usePosterCreate(changeTabTo);
+  const { posterCreate, isCreating, onChangeActions, price, amount, handleClickActions, filteredFormats } = usePosterCreate(changeTabTo);
   return (
     <Card>
       <CardHeader>
@@ -83,16 +82,21 @@ export const TabCreatePoster = ({ changeTabTo }: TabCreatePosterProps) => {
             <Input value={price} onChange={(event) => onChangeActions.onPriceChange(event.target.value)} id="price" type="text" />
           </div>
         </div>
+
+        <div>
+            <Label htmlFor="amount">Stock amount</Label>
+            <Input value={amount} onChange={(event) => onChangeActions.onAmountChange(event.target.value)} id="amount" type="text" />
+          </div>
+
         <Button onClick={() => handleClickActions.onAddFormatPrice()}>Add the format with price to poster</Button>
         <Divider />
       </CardContent>
       <CardFooter className="w-full flex flex-col items-center justify-center">
-        <Toaster />
         {posterCreate.formatPrices.map((formatPrice) => (
           <Card key={formatPrice.format} className="w-4/5 flex items-center justify-between gap-x-2">
             <div className="flex flex-col m-1 text-left">
               <p>format: {formatPrice.format}</p>
-              <p>price: {formatPrice.price}</p>
+              <p>price: kr. {formatPrice.price},-</p>
             </div>
             <Button variant={"destructive"} onClick={() => handleClickActions.onRemoveFormatPrice(formatPrice.format)}>
               Remove

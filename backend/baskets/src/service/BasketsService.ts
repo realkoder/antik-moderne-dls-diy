@@ -1,5 +1,5 @@
 import { prismaBaskets } from "../db/database.js";
-import { BasketDto, BasketItemCreate } from '@realkoder/antik-moderne-shared-types';
+import { BasketDto, BasketItemCreate, PosterDto } from '@realkoder/antik-moderne-shared-types';
 
 /**
  * BasketService
@@ -105,7 +105,7 @@ class BasketsService {
                 basketItems: true
             },
         });
-        
+
         if (!basket) throw Error("Something went wrong finding basket");
 
         if (basket.basketItems && basket.basketItems.length > 0) {
@@ -117,12 +117,14 @@ class BasketsService {
                 if (!posterRes.ok) {
                     throw new Error(`Poster with ID ${item.posterId} not found`);
                 }
-                const { poster } = await posterRes.json();
+                const { poster } = await posterRes.json() as { poster: PosterDto };
                 return {
                     ...item,
                     poster,
+                    formatPrice: poster.formatPrices.find(formatPrice => formatPrice.id === item.formatPriceId),
                 };
             }));
+
             return {
                 ...basket,
                 basketItems: basketItemsWithPosters,
@@ -172,6 +174,7 @@ class BasketsService {
             data: {
                 basketId: basket.id,
                 posterId: basketItemCreate.posterId,
+                formatPriceId: basketItemCreate.formatPriceId,
                 quantity: basketItemCreate.quantity,
             }
         })

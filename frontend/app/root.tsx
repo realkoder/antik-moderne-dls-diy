@@ -20,11 +20,15 @@ import { rootAuthLoader } from "@clerk/react-router/ssr.server";
 import { ClerkProvider } from "@clerk/react-router";
 
 import { Provider } from "jotai";
+import { Toaster } from "sonner";
 const CLERK_SECRET_KEY = import.meta.env.VITE_CLERK_SECRET_KEY;
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 export async function loader(args: Route.LoaderArgs) {
-  return rootAuthLoader(args, { secretKey: CLERK_SECRET_KEY, publishableKey: CLERK_PUBLISHABLE_KEY });
+  return rootAuthLoader(args, {
+    secretKey: CLERK_SECRET_KEY,
+    publishableKey: CLERK_PUBLISHABLE_KEY,
+  });
 }
 
 export const links: Route.LinksFunction = () => [
@@ -73,6 +77,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
           disableTransitionOnChange
         >
           <Provider>
+            <Toaster />
             <Outlet />
           </Provider>
         </ThemeProvider>

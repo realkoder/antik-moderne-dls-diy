@@ -199,6 +199,27 @@ services:
     networks:
         - microservices
 
+  orders-service:
+    restart: always
+    container_name: orders-service
+    build:
+      context: ./backend/orders
+      target: develop
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ./backend/orders/.env.local
+    environment:
+      - ENV=docker-compose
+    volumes:
+      - ./backend/orders:/app
+    depends_on:
+      - postgresdb
+      - rabbitmq
+    ports:
+    - 3006:3006
+    networks:
+        - microservices
+
 # ===========================================
 # Monitoring with Prometheus, Loki and Alloy
 # ===========================================

@@ -44,6 +44,11 @@ serverFiles:
         static_configs:
           - targets: ['users-service.default.svc.cluster.local:3005']
 
+      - job_name: 'orders-service'
+        metrics_path: '/orders/metrics'
+        static_configs:
+          - targets: ['orders-service.default.svc.cluster.local:3006']
+
       - job_name: 'prometheus'
         static_configs:
           - targets: ['localhost:9090']

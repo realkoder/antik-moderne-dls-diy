@@ -1,6 +1,6 @@
 import { RemovedPoster, Format as FormatEnum } from "@prisma/client";
 import { prismaProducts } from "../db/database.js";
-import { Format, FormatPriceDto, PosterCreate, PosterDto, PosterUpdate } from "@realkoder/antik-moderne-shared-types";
+import { Format, FormatPriceDto, OrderDto, PosterCreate, PosterDto, PosterUpdate } from "@realkoder/antik-moderne-shared-types";
 import { publishProductAddedEvent } from "../rabbitmqMessaging/config.js";
 
 
@@ -44,12 +44,13 @@ class PosterService {
                 });
                 const createdFormatPrice = await prisma.formatPrice.create({});
 
-                const formatPricesDto = await Promise.all(posterCreate.formatPrices.map(async ({ format, price }) => {
+                const formatPricesDto = await Promise.all(posterCreate.formatPrices.map(async ({ amount, format, price }) => {
 
                     const createdFormatPriceDescription = await prisma.formatPriceDescription.create({
                         data: {
                             formatPriceId: createdFormatPrice.id,
                             posterDescriptionId: createdPosterDescription.id,
+                            amount,
                             format: mapTypeScriptToPrismaFormat(format),
                             price,
                             createdAt: new Date(),
@@ -139,6 +140,7 @@ class PosterService {
                         data: {
                             formatPriceId: formatPrice.id,
                             posterDescriptionId: updatedPosterDescription.id,
+                            amount: formatPrice.amount,
                             format: mapTypeScriptToPrismaFormat(formatPrice.format),
                             price: formatPrice.price,
                         },
@@ -288,6 +290,10 @@ class PosterService {
             console.error("Error with retrieving ", e)
             return null;
         }
+    }
+
+    async handlePosterOrder(order: OrderDto) {
+
     }
 };
 

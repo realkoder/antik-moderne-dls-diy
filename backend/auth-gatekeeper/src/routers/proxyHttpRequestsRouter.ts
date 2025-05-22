@@ -8,7 +8,8 @@ const router = Router();
 const SERVICES = {
     BASKETS: 'http://baskets-service:3002',
     PRODUCTS: 'http://products-service:3004',
-    USERS: 'http://users-service:3005'
+    USERS: 'http://users-service:3005',
+    ORDERS: 'http://orders-service:3006'
 };
 
 // Create proxy middlewares during initatialization instead of per-request
@@ -39,7 +40,8 @@ const createServiceProxy = (target: string) => {
 const serviceProxies = {
     baskets: createServiceProxy(SERVICES.BASKETS),
     products: createServiceProxy(SERVICES.PRODUCTS),
-    users: createServiceProxy(SERVICES.USERS)
+    users: createServiceProxy(SERVICES.USERS),
+    orders: createServiceProxy(SERVICES.ORDERS)
 };
 
 router.use(async (req: CustomRequest, res, next) => {
@@ -52,6 +54,7 @@ router.use(async (req: CustomRequest, res, next) => {
         if (req.path.startsWith('/baskets')) proxy = serviceProxies.baskets;
         if (req.path.startsWith('/products')) proxy = serviceProxies.products;
         if (req.path.startsWith('/users')) proxy = serviceProxies.users;
+        if (req.path.startsWith('/orders')) proxy = serviceProxies.orders;
 
         // If Prom metrics gets requested parse the request furhter on
         console.log("REQ PATH", req.path);

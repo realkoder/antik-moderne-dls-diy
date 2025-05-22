@@ -1,0 +1,41 @@
+// For any changes make a migration by running: npx prisma migrate dev --name
+// Migration naming convention: <incremenatl_number>_<changes_made>.<up/down>
+
+// If changes made to binaryTargets run from db folder: npx prisma generate
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+  //                REMEMEBER TO CHANGE TO THE EXACT db-<dbname>...
+  // output        = "../../node_modules/@prisma-db-products/client" // Since we have multiple DB and multiple schema.prisma we have to this
+}
+
+datasource db {
+  provider = "postgresql"
+  // url      = "postgresql://postgres:admin@postgresdb:5432/products"
+  url      = "postgresql://postgres:admin@localhost:5431/orders"
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  orderItems OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id            Int @id @default(autoincrement())
+  orderId       Int @map("order_id")
+  posterId      Int @map("poster_id")
+  formatPriceId Int @map("format_price_id")
+  quantity      Int @default(1)
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("order_items")
+}
