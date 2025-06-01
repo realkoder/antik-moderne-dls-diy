@@ -24,7 +24,8 @@ export const TabPosterCard = ({ poster }: TabProductCardProps) => {
   const handleDeletePoster = async () => {
     // const response = await authRequestClient.product.deletePoster(poster.id);
     const response = await fetchData(
-      `/products/auth/api/posters/${poster.id}`, {method: "DELETE"}
+      `/products/auth/api/posters/${poster.id}`,
+      { method: "DELETE" }
     );
     if (response?.posters) {
       toast.info("Poster deleted");
@@ -63,11 +64,22 @@ export const TabPosterCard = ({ poster }: TabProductCardProps) => {
 
       <Divider />
       <CardFooter className="flex-col justify-between text-sm font-serif">
-        <div className="flex ">
-          <p>Artist:</p>
-          <p className="ml-1 italic">{`${poster.artistFullName}`}</p>
+        <div>
+          <div className="flex ">
+            <p>Artist:</p>
+            <p className="ml-1 italic">{`${poster.artistFullName}`}</p>
+          </div>
+          <p>kr. {`${poster.formatPrices[0].price.toFixed(2)},-`}</p>
         </div>
-        <p>kr. {`${poster.formatPrices[0].price.toFixed(2)},-`}</p>
+
+        <div className="flex ">
+          <p>Stock amount:</p>
+          <p className="ml-1 italic">
+            {`${poster.formatPrices
+              .map((formatPrice) => formatPrice.amount)
+              .reduce((acc, value) => acc + value, 0)}`}
+          </p>
+        </div>
       </CardFooter>
     </Card>
   );
