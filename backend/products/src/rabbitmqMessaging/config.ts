@@ -10,6 +10,7 @@ export async function connectToRabbitMQ() {
         connection = await amqp.connect("amqp://guest:guest@rabbitmq:5672/");
         channel = await connection.createChannel();
         await channel.assertQueue(MessagingQueues.PRODUCT_ADDED, { durable: false });
+        await channel.assertQueue(MessagingQueues.ORDER_PENDING, { durable: false });
         console.log("Connected to RabbitMQ and created channel");
 
         channel.consume(MessagingQueues.ORDER_PENDING, async (msg) => {
