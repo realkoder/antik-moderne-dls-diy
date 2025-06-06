@@ -20,7 +20,7 @@
     "@radix-ui/react-tabs": "^1.1.3",
     "@react-router/node": "^7.1.5",
     "@react-router/serve": "^7.1.5",
-    "@realkoder/antik-moderne-shared-types": "^1.0.15",
+    "@realkoder/antik-moderne-shared-types": "^1.0.17",
     "@vercel/react-router": "^1.1.0",
     "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",

@@ -1,4 +1,4 @@
-import { FormatPriceDto, PosterDto } from "../products";
+import { FormatPriceDto, PosterDto } from "../products/index.js";
 
 export type OrderStatus = "PENDING" | "COMPLETED" | "CANCELLED";
 

@@ -3,7 +3,8 @@ import cors from 'cors';
 import { clerkMiddleware } from '@clerk/express';
 import promClient from 'prom-client';
 import { connectToRabbitMQ } from './rabbitmqMessaging/config.js';
-import { logResponseMiddleware, requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types";
+import { requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types/dist/prometheusMetricsMiddleware/metricsMiddleware.js";
+import { logResponseMiddleware } from "@realkoder/antik-moderne-shared-types/dist/winston-loki-logger/winstonLokiLoggerConfig.js";
 import webHookRouter from './routers/webhookRouter.js';
 import proxyHttpRequestsRouter from './routers/proxyHttpRequestsRouter.js';
 

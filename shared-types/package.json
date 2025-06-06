@@ -1,8 +1,9 @@
 {
   "name": "@realkoder/antik-moderne-shared-types",
-  "version": "1.0.15",
+  "version": "1.0.19",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"

@@ -1,4 +1,4 @@
-import { FormatPriceDto, PosterDto } from "../products/interfaces";
+import { FormatPriceDto, PosterDto } from "../products/interfaces.js";
 
 export interface BasketDto {
     id: number;

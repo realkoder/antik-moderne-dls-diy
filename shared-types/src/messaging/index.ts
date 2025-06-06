@@ -1,1 +1,1 @@
-export * from './type.queues'
+export * from './type.queues.js'
