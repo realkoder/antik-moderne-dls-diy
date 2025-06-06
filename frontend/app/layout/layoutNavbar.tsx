@@ -87,7 +87,11 @@ export default function layoutNavbar() {
                   <FaCartShopping size={20} className="text-2xl" />
                   <div className="absolute top-0 -right-1 z-50 bg-red-500 text-white rounded-full w-3.5 h-3.5 flex justify-center items-center">
                     <span className="text-xs">
-                      {basket && basket.basketItems.length}
+                      {basket &&
+                        basket.basketItems.reduce(
+                          (acc, basketItem) => basketItem.quantity + acc,
+                          0
+                        )}
                     </span>
                   </div>
                 </div>

@@ -4,7 +4,7 @@ import { clerkMiddleware } from '@clerk/express';
 import promClient from 'prom-client';
 import { connectToRabbitMQ } from './rabbitmqMessaging/config.js';
 import { requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types/dist/prometheusMetricsMiddleware/metricsMiddleware.js";
-import { logResponseMiddleware } from "@realkoder/antik-moderne-shared-types/dist/winston-loki-logger/winstonLokiLoggerConfig.js";
+// import { logResponseMiddleware } from "@realkoder/antik-moderne-shared-types/dist/winston-loki-logger/winstonLokiLoggerConfig.js";
 import webHookRouter from './routers/webhookRouter.js';
 import proxyHttpRequestsRouter from './routers/proxyHttpRequestsRouter.js';
 
@@ -27,9 +27,9 @@ app.use(webHookRouter);
 // ==============================
 // Reponse logs for winston-loki
 // ==============================
-app.use((req, res, next) => {
-    logResponseMiddleware("auth-gatekeeper-service", req, res, next);
-});
+// app.use((req, res, next) => {
+//     logResponseMiddleware("auth-gatekeeper-service", req, res, next);
+// });
 
 
 // ==========================================

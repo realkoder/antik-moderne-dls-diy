@@ -5,7 +5,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import usersRouters from './routers/usersRouter.js';
 import { requestCounterMiddleware, requestDurationMiddleware, responseLengthMiddleware } from "@realkoder/antik-moderne-shared-types/dist/prometheusMetricsMiddleware/metricsMiddleware.js";
-import { logResponseMiddleware } from "@realkoder/antik-moderne-shared-types/dist/winston-loki-logger/winstonLokiLoggerConfig.js";
+// import { logResponseMiddleware } from "@realkoder/antik-moderne-shared-types/dist/winston-loki-logger/winstonLokiLoggerConfig.js";
 
 const app = express();
 const PORT = process.env.PORT ?? 3005;
@@ -22,9 +22,9 @@ app.use(requestDurationMiddleware); // Use the request duration middleware
 // ==============================
 // Reponse logs for winston-loki
 // ==============================
-app.use((req, res, next) => {
-    logResponseMiddleware("users-service", req, res, next);
-});
+// app.use((req, res, next) => {
+//     logResponseMiddleware("users-service", req, res, next);
+// });
 
 // ============================
 // METRICS FOR PROMETHEUS

@@ -223,14 +223,14 @@ services:
 # ===========================================
 # Monitoring with Prometheus, Loki and Alloy
 # ===========================================
-  loki:
-    image: grafana/loki:latest
-    ports:
-      - '3100:3100'
-    volumes:
-      - loki_data:/data
-    networks:
-      - microservices
+  # loki:
+  #   image: grafana/loki:latest
+  #   ports:
+  #     - '3100:3100'
+  #   volumes:
+  #     - loki_data:/data
+  #   networks:
+  #     - microservices
 
   prometheus:
     image: prom/prometheus
@@ -253,7 +253,7 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     depends_on:
-      - loki
+      # - loki
       - prometheus
     networks:
       - microservices
@@ -262,6 +262,6 @@ services:
 volumes:
   postgres_data: {}
   grafana_data: {} # Want to save the dashboard and other configs for Grafana
-  loki_data: {}
+  # loki_data: {}
   
   
