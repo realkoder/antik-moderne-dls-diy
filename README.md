@@ -121,6 +121,56 @@ ngrok http --url=sharp-moth-exciting.ngrok-free.app 4000
 
 <br>
 
+### Testing React based Frontend
+
+Testing with _Vitest_, _@testing-library/react_ & _jsdom_.
+
+Install the following libs:
+
+```bash
+npm i -D vitest
+
+npm i -D @testing-library/react
+
+npm i -D jsdom
+```
+
+Add these scripts to _package.json_
+
+```json
+{
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui"
+  }
+}
+```
+
+Add the _vitest.config.ts_ to ensure a browser like environment for tests.
+
+```typescript
+import { defineConfig } from "vitest/config";
+import path from "path";
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      "~": path.resolve(__dirname, "./app"),
+      "@components": path.resolve(__dirname, "./src/components/"),
+    },
+  },
+  test: {
+    environment: "jsdom",
+  },
+});
+```
+
+<br>
+
+---
+
+<br>
+
 # Deployment
 
 Frontend deployed through _Vercel_
