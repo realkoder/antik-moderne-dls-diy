@@ -4,6 +4,7 @@
 .env.develop
 .env.production
 .env.kubernetes
+.env.super-hidden
 
 configMap.yml
 
