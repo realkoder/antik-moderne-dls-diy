@@ -10,4 +10,4 @@ RUN npm install
 
 COPY . .
 
-CMD ["npm", "run", "dev"]
+CMD npx prisma migrate deploy --schema=./src/db/schema.prisma && npm run dev

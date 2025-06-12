@@ -24,7 +24,7 @@ services:
       - "5431:5432"
     environment:
       POSTGRES_USER: postgres
-      PGPASSWORD: admin
+      POSTGRES_PASSWORD: admin
     volumes:
       - postgres_data:/var/lib/postgresql/data
       # - ./backend/users/src/db/migrations:/docker-entrypoint-initdb.d/migrations_users  # Users migrations
@@ -39,24 +39,24 @@ services:
       timeout: 5s
       retries: 5
 
-  run-migrations:
-    image: postgres:alpine
-    depends_on:
-      postgresdb:
-        condition: service_healthy
-    volumes:
-      - ./backend/users/src/db/migrations:/migrations_users
-      - ./backend/products/src/db/migrations:/migrations_products
-      - ./backend/baskets/src/db/migrations:/migrations_baskets
-      - ./init-migrations.sh:/docker-entrypoint-initdb.d/init-migrations.sh
-    command: ["sh", "-c", "/docker-entrypoint-initdb.d/init-migrations.sh"]
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
-      PGHOST: postgresdb
-      PGPORT: 5432
-    networks:
-      - microservices
+  # run-migrations:
+  #   image: postgres:alpine
+  #   depends_on:
+  #     postgresdb:
+  #       condition: service_healthy
+  #   volumes:
+  #     - ./backend/users/src/db/migrations:/migrations_users
+  #     - ./backend/products/src/db/migrations:/migrations_products
+  #     - ./backend/baskets/src/db/migrations:/migrations_baskets
+  #     - ./init-migrations.sh:/docker-entrypoint-initdb.d/init-migrations.sh
+  #   command: ["sh", "-c", "/docker-entrypoint-initdb.d/init-migrations.sh"]
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: admin
+  #     PGHOST: postgresdb
+  #     PGPORT: 5432
+  #   networks:
+  #     - microservices
 
 # ==============================
 # RABBITMQ
@@ -72,8 +72,8 @@ services:
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
     volumes:
-      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_log:/var/log/rabbitmq
     networks:
         - microservices
     command: rabbitmq-server -rabbitmq_management listener [{port,15672}] -rabbitmq_prometheus [{port,15692}]
@@ -261,6 +261,8 @@ services:
 
 volumes:
   postgres_data: {}
+  rabbitmq_data:
+  rabbitmq_log:
   grafana_data: {} # Want to save the dashboard and other configs for Grafana
   # loki_data: {}
   
