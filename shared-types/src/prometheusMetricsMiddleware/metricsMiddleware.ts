@@ -36,6 +36,10 @@ export const requestCounterMiddleware = (req: Request, _: Response, next: NextFu
 export const responseLengthMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const originalSend = res.send;
     res.send = function (body) {
+        // Convert body to string if it's an object
+        if (typeof body !== 'string' && !Buffer.isBuffer(body)) {
+            body = JSON.stringify(body);
+        }
         const responseLength = Buffer.byteLength(body);
         httpResponseLength.observe({ method: req.method, route: req.path }, responseLength);
         return originalSend.call(this, body);
