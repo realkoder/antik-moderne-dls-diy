@@ -260,10 +260,20 @@ services:
 
 
 volumes:
-  postgres_data: {}
+  postgres_data:
+    name: postgres_data
+    # Stores PostgreSQL database files
+
   rabbitmq_data:
+    name: rabbitmq_data
+    # Stores RabbitMQ data
+
   rabbitmq_log:
-  grafana_data: {} # Want to save the dashboard and other configs for Grafana
+    name: rabbitmq_log
+    # Stores RabbitMQ logs
+
+  grafana_data:
+    name: grafana_data
   # loki_data: {}
   
   
