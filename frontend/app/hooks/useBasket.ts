@@ -11,12 +11,12 @@ const useBasket = () => {
     const { userId } = useAuth();
     const [guid, setGuid] = useState<string | null>();
     const [basket, setBasket] = useAtom(basketAtom);
+
     const basketTotalPrice = useMemo(() => {
         const totalPrice = basket?.basketItems.reduce(
             (total, item) => total + item.formatPrice.price * item.quantity, 0)
         return totalPrice ? totalPrice : 0;
-    },
-        [basket])
+    }, [basket])
 
     useEffect(() => {
         let localstorageGuid = localStorage.getItem("basketguid")
@@ -27,6 +27,7 @@ const useBasket = () => {
         setGuid(localstorageGuid);
 
         if (basket && basket.userId === userId) return;
+        console.log("FETCHING BASKET", basket);
         (async () => {
             if (userId) {
                 const response = await fetchData(
@@ -49,7 +50,7 @@ const useBasket = () => {
                 }
             }
         })();
-    }, []);
+    }, [userId]);
 
     const addItemToBasket = async (basketItemCreate: BasketItemCreate) => {
 

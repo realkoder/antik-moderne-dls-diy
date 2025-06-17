@@ -5,7 +5,6 @@
 # docker-compose logs: docker-compose -f docker-compose.dev.yml logs -f
 # docker-compose down: docker-compose -f docker-compose.dev.yml down --rmi all --remove-orphans // Deletes all images - JUST MAKE SURE VOLUMES WONT BE DELETED
 
-
 networks:
   microservices:
     driver: bridge
